@@ -7,14 +7,13 @@
     "build": "webpack --config ./webpack.prod.js",
     "build:dev": "webpack --config ./webpack.dev.js",
     "build:watch": "webpack --config ./webpack.dev.js --watch",
-    "start": "webpack-dev-server --config ./webpack.dev.js --hot --inline && node src/server/index.js",
+    "start": "webpack-dev-server --config ./webpack.dev.js --hot --inline",
     "watch": "webpack --config ./webpack.dev.js --watch",
     "test": "jest",
     "prepare": "npm run build && npm run build:dev",
     "prepublishOnly": "jest",
     "test:watch": "jest --watch",
     "version": "npm run build",
-    "postversion": "git push && git push --tags"
   },
   "repository": {
     "type": "git",
