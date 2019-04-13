@@ -13,7 +13,7 @@
     "prepare": "npm run build && npm run build:dev",
     "prepublishOnly": "jest",
     "test:watch": "jest --watch",
-    "version": "npm run build",
+    "version": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -75,7 +75,7 @@
     "webpack-cli": "^3.0.8",
     "webpack-dev-server": "^3.1.4",
     "body-parser": "^1.18.3",
-    "cookies-js": "^1.2.3",
+    "cookies-js": "^1.2.3"
   },
   "dependencies": {
     "@types/react-router": "^4.4.1",
