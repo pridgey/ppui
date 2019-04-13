@@ -19,7 +19,7 @@ ReactDOM.render(
         />
         <PrimaryButton
             Caption="Disabled Primary Button!"
-            OnClick={() => alert("You'll never see this")}
+            OnClick={() => alert("You'll never see this.")}
             Disabled={true}
             BackgroundColor="red"
         />
@@ -36,7 +36,7 @@ ReactDOM.render(
         />
         <SecondaryButton
             Caption="A disabled secondary button"
-            OnClick={() => alert("You should never see this")}
+            OnClick={() => alert("You should never see this.")}
             Disabled={true}
             BorderColor="red"
         />
