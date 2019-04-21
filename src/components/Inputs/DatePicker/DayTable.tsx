@@ -155,7 +155,6 @@ export class DayTable extends React.Component<IDayTableProps, IDayTableState> {
         {
             const day = numDays - numFillers + idx;
             rowFillers.push(<CalendarTD
-                                data-focus={"DateInput"}
                                 tabIndex = {0}
                                 key={`StartFillerCell${day}`}
                                 data-day={day}
@@ -188,7 +187,6 @@ export class DayTable extends React.Component<IDayTableProps, IDayTableState> {
         {
             const day = idx + 1;
             rowFillers.push(<CalendarTD
-                                data-focus={"DateInput"}
                                 tabIndex = {0}
                                 key={`EndFillerCell${day}`}
                                 data-day={day}
@@ -219,7 +217,6 @@ export class DayTable extends React.Component<IDayTableProps, IDayTableState> {
         {
             const day = idx + 1;
             rowFillers.push(<CalendarTD
-                                data-focus={"DateInput"}
                                 tabIndex = {0}
                                 key={`EndFillerCell${day}`}
                                 data-day={day}
@@ -240,7 +237,6 @@ export class DayTable extends React.Component<IDayTableProps, IDayTableState> {
         for(let item of daysOfTheMonth)
         {
             let cell = (<CalendarTD
-                            data-focus={"DateInput"}
                             tabIndex = {0}
                             key={`Cell${item.day}`}
                             data-day={item.day} data-month={this.state.ActiveCell.Month}
@@ -253,7 +249,6 @@ export class DayTable extends React.Component<IDayTableProps, IDayTableState> {
             if (Today.getDate() == item.day && Today.getMonth() == this.state.ActiveCell.Month && Today.getFullYear() == this.state.ActiveCell.Year)
             {
                 cell = (<CalendarTD
-                    data-focus={"DateInput"}
                     tabIndex = {0}
                     key={`Cell${item.day}`}
                     data-day={item.day}
@@ -270,7 +265,6 @@ export class DayTable extends React.Component<IDayTableProps, IDayTableState> {
                 if(this.state.ActiveCell.Day == item.day && this.state.ActiveCell.Month == this.state.ActiveCell.Month && this.state.ActiveCell.Year == this.state.ActiveCell.Year)
                 {
                     cell = (<CalendarTD
-                                data-focus={"DateInput"}
                                 tabIndex = {0}
                                 key={`Cell${item.day}`}
                                 data-day={item.day}
