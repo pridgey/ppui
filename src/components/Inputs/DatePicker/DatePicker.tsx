@@ -23,7 +23,7 @@ const DateInput = styled.input`
     outline: none;
     font-size: 16px;
     border: none;
-    border-bottom: 1px solid black;    
+    border-bottom: 1px solid black;
     transition: border-width .2s ease-out;
 
     &:focus {
@@ -75,7 +75,7 @@ const CalendarWrapper = styled.div`
     border-radius: 7.5px;
     position: absolute;
     top: 65px;
-    left: 5px; 
+    left: 5px;
     outline: none;
     border: 1px solid black;
 
@@ -88,7 +88,7 @@ const CalendarWrapper = styled.div`
         background: black;
         width: 20px;
         height: 15px;
-        
+
         /* The points are: (left top: x y, right top: x y, center bottom: x y) */
         -webkit-clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
         clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
@@ -102,7 +102,7 @@ const CalendarBanner = styled.div`
     justify-content: space-evenly;
 `;
 
-const Month: { [number: string]: string } = {
+const Month: { [decimal: string]: string } = {
     0: "Jan",
     1: "Feb",
     2: "Mar",
@@ -138,7 +138,9 @@ export interface IDatePickerState {
 }
 
 export class DatePicker extends React.Component<IDatePickerProps, IDatePickerState> {
-    constructor(props: any){
+    private DefaultDateFormat: string = "mm/dd/yyyy";
+
+    constructor(props: any) {
         super(props);
 
         const today: Date = new Date();
@@ -148,7 +150,7 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
         const startDay: number = this.props.StartDate ? this.props.StartDate.getDate() : today.getDate();
 
         this.state = {
-            Value: startValue ? `${("0" + (Number(this.props.StartDate.getMonth())+1).toString()).slice(-2)}/${("0" + this.props.StartDate.getDate().toString()).slice(-2)}/${this.props.StartDate.getFullYear().toString()}` : "",    
+            Value: startValue ? `${("0" + (Number(this.props.StartDate.getMonth()) + 1).toString()).slice(-2)}/${("0" + this.props.StartDate.getDate().toString()).slice(-2)}/${this.props.StartDate.getFullYear().toString()}` : "",
             HasValue: startValue ? true : false,
             HasDate: startValue ? true : false,
             Active: false,
@@ -158,14 +160,12 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
         };
     }
 
-    private DefaultDateFormat: string = "mm/dd/yyyy";
-
     public render() {
         return (
             <ComponentWrapper>
                 <InputWrapper>
                     <DateInput
-                        onClick={(event: React.MouseEvent<HTMLInputElement>) => this.handleInputClick(event)}
+                        onFocus={(event: React.FocusEvent<HTMLInputElement>) => this.handleInputFocus(event)}
                         onBlur={(event: React.FocusEvent<HTMLInputElement>) =>  this.handleInputBlur(event)}
                         onChange={(event: React.ChangeEvent<HTMLInputElement>) => this.handleInputChange(event)}
                         value={this.state.HasDate ? 
@@ -175,12 +175,12 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
                     />
                         {(this.state.HasValue) ?
                             <FloatingLabel><span>Pick a Date</span></FloatingLabel>
-                        : 
-                            <InputLabel><span>Pick a Date</span></InputLabel> 
+                        :
+                            <InputLabel><span>Pick a Date</span></InputLabel>
                         }
                 </InputWrapper>
                 { this.state.Display ?
-                    <CalendarWrapper tabIndex={0}>
+                    <CalendarWrapper>
                         <CalendarBanner>
                             <Dropdown Value={this.state.ActiveCell.Month.toString()} Options={this.getMonthDropdownOptions()} OnChange={this.setMonth}/>
                             <Dropdown Value={this.state.ActiveCell.Year.toString()} Options={this.getYearDropdownOptions()} OnChange={this.setYear}/>
@@ -198,7 +198,7 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
     }
 
     private getMonthDropdownOptions = (): IDropdownOption[] => {
-        const options: IDropdownOption[] = [];        
+        const options: IDropdownOption[] = [];
         for (let month = 0; month < 12; month++) {
             options.push({Caption: Month[month], Value: month.toString()});
         }
@@ -216,10 +216,10 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
     }
 
     private formatValue = (day: number, month: number, year: number) => {
-        return `${("0" + (Number(month)+1).toString()).slice(-2)}/${("0" + day.toString()).slice(-2)}/${year.toString()}`
+        return `${("0" + (Number(month) + 1).toString()).slice(-2)}/${("0" + day.toString()).slice(-2)}/${year.toString()}`;
     }
 
-    private setDay = (year: number, month: number, day: number) => {        
+    private setDay = (year: number, month: number, day: number) => {
         this.setState({Active: false, ActiveCell: { Day: day, Month: month, Year: year },
                        Display: false,
                        Value: this.formatValue(day, month, year),
@@ -240,7 +240,6 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
     }
 
     private setYear = (value: string) => {
-        console.log(value);
         const day = this.state.ActiveCell.Day;
         const month = this.state.ActiveCell.Month;
         const year: number = Number(value);
@@ -251,66 +250,61 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
                        });
     }
 
-    private handleInputClick = (event: any) => {
-        if(this.props.DateFormat != undefined)
+    private handleInputFocus = (event: React.FocusEvent<HTMLInputElement>) => {
+        if (this.props.DateFormat !== undefined) {
             event.target.placeholder = this.props.DateFormat;
-        else
+        } else {
             event.target.placeholder = this.DefaultDateFormat;
+        }
         this.setState({Display: true});
     }
 
     private handleInputBlur = (event: React.FocusEvent<HTMLInputElement>) => {
         const currValLength: number = event.target.value.length;
-        if (event.relatedTarget == null || 
+        if (event.relatedTarget === null ||
             !event.target.parentElement.parentElement.contains(event.relatedTarget as Node))
         {
-            if (currValLength > 0)
-            {
+            if (currValLength > 0) {
                 this.setState({HasValue: true});
-            }
-            else
-            {
+            } else {
                 this.setState({HasValue: false});
             }
-            if(currValLength == this.state.DateFormat.length)
+            if (currValLength === this.state.DateFormat.length) {
                 this.setState({HasDate: true});
-            else
-                this.setState({HasDate: false});            
+            } else {
+                this.setState({HasDate: false});
+            }
             this.setState({Display: false});
             event.target.removeAttribute("placeholder");
-        } 
-        else
-        {
-            event.target.focus();
-        }           
+        }
     }
 
     private handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        let currVal: string = event.target.value;
+        const currVal: string = event.target.value;
         const reNumber = new RegExp("\\d");
         const reDelimiter = new RegExp("\/");
-        if ((reNumber.test(currVal.substring(currVal.length-1, currVal.length)) && currVal.length < 11) || currVal.length === 0)
+        if ((reNumber.test(currVal.substring(currVal.length - 1, currVal.length)) && currVal.length < 11) || currVal.length === 0)
         {
             if ((currVal.length === 2 || currVal.length === 5) && currVal > this.state.Value) {
                 this.setState({Value: currVal + "/"});
             } else {
                 this.setState({Value: currVal});
-            }            
+            }
         } else if (reDelimiter.test(currVal.substring(currVal.length-1, currVal.length)) && currVal.length < 11) {
             this.setState({Value: currVal});
         }
 
         // update ActiveCell if new value's length matches DateFormat's length
-        if (currVal.length == 10)
+        if (currVal.length === 10)
         {
-            const month = Number(currVal.substring(0,2));
-            const day = Number(currVal.substring(3,5));
-            const year = Number(currVal.substring(6,10));
-            this.setState({ActiveCell: {Day: day, Month: month-1, Year: year}}, () => {
+            const month = Number(currVal.substring(0, 2));
+            const day = Number(currVal.substring(3, 5));
+            const year = Number(currVal.substring(6, 10));
+            this.setState({ActiveCell: {Day: day, Month: month - 1, Year: year}}, () => {
                 this.props.OnChange(this.state.Value);
             });
-        } else if (currVal.length == 9) {
+        } else if (currVal.length === 9) {
             this.setState({HasDate: false});
-        }        
+        }
     }
 }
