@@ -24,7 +24,6 @@ export interface IDropdownState {
 
 export class Dropdown extends React.Component<IDropdownProps, IDropdownState> {
     public static getDerivedStateFromProps(nextProps: IDropdownProps) {
-        console.log('here');
         return {
             Value: nextProps.Value,
         }

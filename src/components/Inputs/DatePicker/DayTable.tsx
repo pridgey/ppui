@@ -1,5 +1,5 @@
 import * as React from "react";
-import styled from 'styled-components';
+import styled from "styled-components";
 
 const CalendarTable = styled.table`
     width: 100%;
@@ -22,7 +22,7 @@ const CalendarTheadTR = styled.tr`
 
 const CalendarTR = styled.tr`
     border-spacing: 0;
-`
+`;
 
 const CalendarTH = styled.th`
     color: #cccccc;
@@ -34,11 +34,9 @@ const CalendarTH = styled.th`
 `;
 
 const CalendarTD = styled.td`
-    padding: 10px;
     text-align: center;
     border-radius: 50px;
     border: 1px solid #fefefe;
-    cursor: pointer;
 
     &:hover {
         border: 1px solid black;
@@ -47,7 +45,16 @@ const CalendarTD = styled.td`
     }
 `;
 
-const Weekday: { [number: string]: string } = {
+const CalendarTDButton = styled.button`
+    cursor: pointer;
+    padding: 10px;
+    border: none;
+    background: none;
+    height: 100%;
+    width: 100%;
+`;
+
+const Weekday: { [decimal: string]: string } = {
     0: "Su",
     1: "Mo",
     2: "Tu",
@@ -57,12 +64,13 @@ const Weekday: { [number: string]: string } = {
     6: "Sa",
 }
 
-export interface IDayTableProps { 
+export interface IDayTableProps {
     ActiveCell: { Day: number, Month: number, Year: number};
-    OnClick: (year: number, month: number, day: number) => void;  
+    OnClick: (year: number, month: number, day: number) => void;
+    OnBlur: (event: React.FocusEvent<HTMLButtonElement>) => void;
 }
 
-export interface IDayTableState { 
+export interface IDayTableState {
     ActiveCell: { Day: number, Month: number, Year: number};
 }
 
@@ -71,15 +79,15 @@ const Today: Date = new Date();
 export class DayTable extends React.Component<IDayTableProps, IDayTableState> {
     public static getDerivedStateFromProps(nextProps: IDayTableProps) {
         return {
-            ActiveCell: nextProps.ActiveCell ? nextProps.ActiveCell : null
+            ActiveCell: nextProps.ActiveCell ? nextProps.ActiveCell : null,
         };
     }
 
-    constructor(props: any){
+    constructor(props: any) {
         super(props);
         this.state = {
             ActiveCell: this.props.ActiveCell,
-        }
+        };
     }
 
     public render() {
@@ -103,39 +111,50 @@ export class DayTable extends React.Component<IDayTableProps, IDayTableState> {
         );
     }
 
-    private handleClick = (event: any) => {
-        const year = Number(event.target.dataset.year);        
-        const month = Number(event.target.dataset.month);
-        const day = Number(event.target.dataset.day);
+    private handleMouseDown = (event: React.MouseEvent<HTMLButtonElement>) => {
+        const year = Number((event.target as HTMLButtonElement).dataset.year);
+        const month = Number((event.target as HTMLButtonElement).dataset.month);
+        const day = Number((event.target as HTMLButtonElement).dataset.day);
         this.props.OnClick(year, month, day);
-    };  
+    }
+
+    private handleKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
+        const enterKey: number = 13;
+        if (event.keyCode === enterKey) {
+            const year = Number((event.target as HTMLButtonElement).dataset.year);
+            const month = Number((event.target as HTMLButtonElement).dataset.month);
+            const day = Number((event.target as HTMLButtonElement).dataset.day);
+            this.props.OnClick(year, month, day);
+        }
+    }
+
+    private handleBlur = (event: React.FocusEvent<HTMLButtonElement>) => {
+        this.props.OnBlur(event);
+    }
 
     private firstDayOfMonth = (year: number, month: number) => {
-        var date = new Date(year, month, 1);
-        return date.getDay();
+        return new Date(year, month, 1).getDay();
     }
 
     private daysInMonth = (year: number, month: number) => {
-        var date = new Date(year, month+1, 0);
-        return date.getDate();
+        return new Date(year, month + 1, 0).getDate();
     }
 
     private createDaysOfTheMonth = () => {
         let weekday = this.firstDayOfMonth(this.state.ActiveCell.Year, this.state.ActiveCell.Month);
-        let numDays = this.daysInMonth(this.state.ActiveCell.Year, this.state.ActiveCell.Month);
-        let daysOfTheMonth = [];
-        var day: number;
-        for(day = 1; day < numDays + 1; day++)
-        {
-            var item = {
-                "day": day,
-                "weekday": weekday,
+        const numDays = this.daysInMonth(this.state.ActiveCell.Year, this.state.ActiveCell.Month);
+        const daysOfTheMonth = [];
+        for (let day = 1; day < numDays + 1; day++) {
+            const item = {
+                day,
+                weekday,
             };
             daysOfTheMonth.push(item);
 
             weekday++;
-            if (weekday > 6)
+            if (weekday > 6) {
                 weekday = 0;
+            }
         }
         return daysOfTheMonth;
     }
@@ -143,28 +162,29 @@ export class DayTable extends React.Component<IDayTableProps, IDayTableState> {
     private loadStartFillers = (daysOfTheMonth: any) => {
         let year: number = this.state.ActiveCell.Year;
         let month: number = Number(this.state.ActiveCell.Month) - 1;
-        if (this.state.ActiveCell.Month == 0)
-        {
+        if (this.state.ActiveCell.Month === 0) {
             year--;
             month = 11;
         }
         const numDays = this.daysInMonth(year, month);
         const numFillers = daysOfTheMonth[0].weekday - 1;
-        let rowFillers: any[] = [];
-        var idx: number;
-        for(idx = 0; idx <= numFillers; idx++)
-        {
+        const rowFillers: any[] = [];
+        for (let idx = 0; idx <= numFillers; idx++) {
             const day = numDays - numFillers + idx;
             rowFillers.push(<CalendarTD
-                                tabIndex = {0}
                                 key={`StartFillerCell${day}`}
-                                data-day={day}
-                                data-month={month}
-                                data-year={year}
-                                onClick={(event) => this.handleClick(event)}
-                                onMouseDown={(event) => this.handleClick(event)}
-                                style={{color: "#dddddd"}}
-                            >{day.toString()}
+                            >
+                                <CalendarTDButton
+                                    onMouseDown={this.handleMouseDown}
+                                    onKeyDown={this.handleKeyDown}
+                                    onBlur={this.handleBlur}
+                                    data-day={day}
+                                    data-month={month}
+                                    data-year={year}
+                                    style={{color: "#dddddd"}}
+                                >
+                                    {day.toString()}
+                                </CalendarTDButton>
                             </CalendarTD>);
         }
         return rowFillers;
@@ -173,30 +193,32 @@ export class DayTable extends React.Component<IDayTableProps, IDayTableState> {
     private loadEndFillers = (daysOfTheMonth: any) => {
         let year: number = this.state.ActiveCell.Year;
         let month: number = Number(this.state.ActiveCell.Month) + 1;
-        if (this.state.ActiveCell.Month == 11)
-        {
+        if (this.state.ActiveCell.Month === 11) {
             year++;
             month = 0;
         }
 
-        let numFillers = 6 - daysOfTheMonth[daysOfTheMonth.length-1].weekday;
-        if (numFillers == 0)
+        let numFillers = 6 - daysOfTheMonth[daysOfTheMonth.length - 1].weekday;
+        if (numFillers === 0) {
             numFillers = 7;
-        let rowFillers: any[] = [];
-        var idx: number;
-        for(idx = 0; idx < numFillers; idx++)
-        {
+        }
+        const rowFillers: JSX.Element[] = [];
+        for (let idx = 0; idx < numFillers; idx++) {
             const day = idx + 1;
             rowFillers.push(<CalendarTD
-                                tabIndex = {0}
                                 key={`EndFillerCell${day}`}
-                                data-day={day}
-                                data-month={month}
-                                data-year={year}
-                                onClick={(event) => this.handleClick(event)}
-                                onMouseDown={(event) => this.handleClick(event)}
-                                style={{color: "#dddddd"}}
-                            >{day.toString()}
+                            >
+                                <CalendarTDButton
+                                    onMouseDown={this.handleMouseDown}
+                                    onKeyDown={this.handleKeyDown}
+                                    onBlur={this.handleBlur}
+                                    data-day={day}
+                                    data-month={month}
+                                    data-year={year}
+                                    style={{color: "#dddddd"}}
+                                >
+                                    {day.toString()}
+                                </CalendarTDButton>
                             </CalendarTD>);
         }
         return rowFillers;
@@ -205,105 +227,109 @@ export class DayTable extends React.Component<IDayTableProps, IDayTableState> {
     private createRowFromDayOn = (day: number) => {
         let year: number = this.state.ActiveCell.Year;
         let month: number = Number(this.state.ActiveCell.Month) + 1;
-        if (this.state.ActiveCell.Month == 11)
-        {
+        if (this.state.ActiveCell.Month === 11) {
             year++;
             month = 0;
         }
 
         const numFillers = 7;
-        let rowFillers: any[] = [];
-        var idx: number;
-        for(idx = day; idx < day + numFillers; idx++)
-        {
-            const day = idx + 1;
+        const rowFillers: JSX.Element[] = [];
+        for (let idx = day; idx < day + numFillers; idx++) {
+            const currDay = idx + 1;
             rowFillers.push(<CalendarTD
-                                tabIndex = {0}
-                                key={`EndFillerCell${day}`}
-                                data-day={day}
-                                data-month={month}
-                                data-year={year}
-                                onClick={(event) => this.handleClick(event)}
-                                onMouseDown={(event) => this.handleClick(event)}
-                                style={{color: "#dddddd"}}
-                            >{day.toString()}
+                                key={`EndFillerCell${currDay}`}
+                            >
+                                <CalendarTDButton
+                                    onMouseDown={this.handleMouseDown}
+                                    onKeyDown={this.handleKeyDown}
+                                    onBlur={this.handleBlur}
+                                    data-day={currDay}
+                                    data-month={month}
+                                    data-year={year}
+                                    style={{color: "#dddddd"}}
+                                >
+                                    {currDay.toString()}
+                                </CalendarTDButton>
                             </CalendarTD>);
         }
         return rowFillers;
     }
 
     private loadMonth = (daysOfTheMonth: any) => {
-        let rows: any[] = [];
-        let row: any[] = this.loadStartFillers(daysOfTheMonth);    
-        for(let item of daysOfTheMonth)
-        {
+        const rows: JSX.Element[] = [];
+        let row: JSX.Element[] = this.loadStartFillers(daysOfTheMonth);
+        for (const item of daysOfTheMonth) {
             let cell = (<CalendarTD
-                            tabIndex = {0}
                             key={`Cell${item.day}`}
-                            data-day={item.day} data-month={this.state.ActiveCell.Month}
-                            data-year={this.state.ActiveCell.Year}
-                            onClick={(event) => this.handleClick(event)}
-                            onMouseDown={(event) => this.handleClick(event)}
                         >
-                        {item.day.toString()}
-                        </CalendarTD>);
-            if (Today.getDate() == item.day && Today.getMonth() == this.state.ActiveCell.Month && Today.getFullYear() == this.state.ActiveCell.Year)
-            {
-                cell = (<CalendarTD
-                    tabIndex = {0}
-                    key={`Cell${item.day}`}
-                    data-day={item.day}
-                    data-month={this.state.ActiveCell.Month}
-                    data-year={this.state.ActiveCell.Year}
-                    onMouseDown={(event) => this.handleClick(event)}
-                    style={{background:"#eeeeee", color: "black"}}
-                >
-                {item.day.toString()}
-                </CalendarTD>);
-            }
-            if (this.state.ActiveCell !== undefined)
-            {
-                if(this.state.ActiveCell.Day == item.day && this.state.ActiveCell.Month == this.state.ActiveCell.Month && this.state.ActiveCell.Year == this.state.ActiveCell.Year)
-                {
-                    cell = (<CalendarTD
-                                tabIndex = {0}
-                                key={`Cell${item.day}`}
+                            <CalendarTDButton
+                                onMouseDown={this.handleMouseDown}
+                                onKeyDown={this.handleKeyDown}
+                                onBlur={this.handleBlur}
                                 data-day={item.day}
                                 data-month={this.state.ActiveCell.Month}
                                 data-year={this.state.ActiveCell.Year}
-                                onClick={(event) => this.handleClick(event)}
-                                onMouseDown={(event) => this.handleClick(event)}
-                                style={{background:"#1168b3", color: "white"}}
                             >
-                            {item.day.toString()}
+                                {item.day.toString()}
+                            </CalendarTDButton>
+                        </CalendarTD>);
+            if (Today.getDate() === item.day && Today.getMonth() === this.state.ActiveCell.Month && Today.getFullYear() === this.state.ActiveCell.Year) {
+                cell = (<CalendarTD
+                    key={`Cell${item.day}`}
+                    style={{background: "#eeeeee"}}
+                >
+                    <CalendarTDButton
+                        onMouseDown={this.handleMouseDown}
+                        onKeyDown={this.handleKeyDown}
+                        onBlur={this.handleBlur}
+                        data-day={item.day}
+                        data-month={this.state.ActiveCell.Month}
+                        data-year={this.state.ActiveCell.Year}
+                    >
+                        {item.day.toString()}
+                    </CalendarTDButton>
+                </CalendarTD>);
+            }
+            if (this.state.ActiveCell !== undefined) {
+                if (this.state.ActiveCell.Day === item.day && this.state.ActiveCell.Month === this.state.ActiveCell.Month && this.state.ActiveCell.Year === this.state.ActiveCell.Year) {
+                    cell = (<CalendarTD
+                                key={`Cell${item.day}`}
+                                style={{background: "#1168b3"}}
+                            >
+                                <CalendarTDButton
+                                    onMouseDown={this.handleMouseDown}
+                                    onKeyDown={this.handleKeyDown}
+                                    onBlur={this.handleBlur}
+                                    data-day={item.day}
+                                    data-month={this.state.ActiveCell.Month}
+                                    data-year={this.state.ActiveCell.Year}
+                                    style={{color: "white"}}
+                                >
+                                    {item.day.toString()}
+                                </CalendarTDButton>
                             </CalendarTD>);
                 }
             }
 
             row.push(cell);
-            if (item.day == daysOfTheMonth.length && item.weekday != 6)
-            {
+            if (item.day === daysOfTheMonth.length && item.weekday !== 6) {
                 row = row.concat(this.loadEndFillers(daysOfTheMonth));
-                rows.push(<CalendarTR key={`Row${rows.length}`}>{row}</CalendarTR>);   
-            }
-            else if (item.day == daysOfTheMonth.length && item.weekday == 6)
-            {
+                rows.push(<CalendarTR key={`Row${rows.length}`}>{row}</CalendarTR>);
+            } else if (item.day === daysOfTheMonth.length && item.weekday === 6) {
                 rows.push(<CalendarTR key={`Row${rows.length}`}>{row}</CalendarTR>);
                 rows.push(<CalendarTR key={`Row${rows.length}`}>{this.loadEndFillers(daysOfTheMonth)}</CalendarTR>);
-            }
-            else if (item.weekday == 6)
-            {
+            } else if (item.weekday === 6) {
                 rows.push(<CalendarTR key={`Row${rows.length}`}>{row}</CalendarTR>);
                 row = [];
-            }                      
+            }
         }
-        if (rows.length < 6)
-        {
-            const lastWeekDay = daysOfTheMonth[daysOfTheMonth.length-1].weekday;
+        if (rows.length < 6) {
+            const lastWeekDay = daysOfTheMonth[daysOfTheMonth.length - 1].weekday;
             let startDay = 6 - lastWeekDay;
-            if (startDay == 0)
-                startDay = 7;                
-            rows.push(<CalendarTR key={`Row${rows.length}`}>{this.createRowFromDayOn(startDay)}</CalendarTR>)
+            if (startDay === 0) {
+                startDay = 7;
+            }
+            rows.push(<CalendarTR key={`Row${rows.length}`}>{this.createRowFromDayOn(startDay)}</CalendarTR>);
         }
         return rows;
     }
