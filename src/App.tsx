@@ -1,8 +1,7 @@
 // react
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { PrimaryButton, SecondaryButton } from "./Components";
-import { DatePicker } from "./Components/DatePicker2";
+import { DatePicker, PrimaryButton, SecondaryButton } from "./components";
 
 const root = document.getElementById("app") as HTMLElement;
 

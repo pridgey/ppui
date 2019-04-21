@@ -1,2 +1,3 @@
 export * from "./Buttons";
-export * from "./DatePicker2";
+export * from "./DatePicker";
+export * from "./Inputs";

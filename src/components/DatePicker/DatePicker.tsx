@@ -1,7 +1,7 @@
 import * as React from "react";
 import styled from "styled-components";
 import { DayTable } from "./";
-import { Dropdown, IDropdownOption } from "../Inputs";
+import { Dropdown, IDropdownOption } from "../../components";
 
 const ComponentWrapper = styled.div`
     display: flex;
