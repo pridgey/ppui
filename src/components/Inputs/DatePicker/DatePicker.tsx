@@ -117,7 +117,8 @@ const Month: { [decimal: string]: string } = {
     11: "Dec",
 }
 
-export interface IDatePickerProps { 
+export interface IDatePickerProps {
+    ID: string;
     StartDate?: Date;
     MinYear?: number;
     MaxYear?: number;
@@ -162,18 +163,19 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
 
     public render() {
         return (
-            <ComponentWrapper>
+            <ComponentWrapper id={this.props.ID}>
                 <InputWrapper>
                     <DateInput
-                        onFocus={(event: React.FocusEvent<HTMLInputElement>) => this.handleInputFocus(event)}
-                        onBlur={(event: React.FocusEvent<HTMLInputElement>) =>  this.handleInputBlur(event)}
-                        onChange={(event: React.ChangeEvent<HTMLInputElement>) => this.handleInputChange(event)}
-                        value={this.state.HasDate ? 
-                            `${("0" + (Number(this.state.ActiveCell.Month)+1).toString()).slice(-2)}/${("0" + this.state.ActiveCell.Day.toString()).slice(-2)}/${this.state.ActiveCell.Year.toString()}`
+                        onFocus={this.handleInputFocus}
+                        onBlur={this.handleInputBlur}
+                        onChange={this.handleInputChange}
+                        placeholder={this.state.Display && !this.state.HasValue ? (this.props.DateFormat ? this.props.DateFormat : this.DefaultDateFormat) : undefined}
+                        value={this.state.HasDate ?
+                            `${("0" + (Number(this.state.ActiveCell.Month) + 1).toString()).slice(-2)}/${("0" + this.state.ActiveCell.Day.toString()).slice(-2)}/${this.state.ActiveCell.Year.toString()}`
                             :
                             this.state.Value}
                     />
-                        {(this.state.HasValue) ?
+                        {this.state.Display || this.state.HasValue ?
                             <FloatingLabel><span>Pick a Date</span></FloatingLabel>
                         :
                             <InputLabel><span>Pick a Date</span></InputLabel>
@@ -188,6 +190,7 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
                         <DayTable
                             ActiveCell={this.state.ActiveCell}
                             OnClick={this.setDay}
+                            OnBlur={this.handleButtonBlur}
                         />
                     </CalendarWrapper>
                     :
@@ -250,19 +253,22 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
                        });
     }
 
-    private handleInputFocus = (event: React.FocusEvent<HTMLInputElement>) => {
-        if (this.props.DateFormat !== undefined) {
-            event.target.placeholder = this.props.DateFormat;
-        } else {
-            event.target.placeholder = this.DefaultDateFormat;
-        }
+    private handleInputFocus = () => {
         this.setState({Display: true});
+    }
+
+    private handleButtonBlur = (event: React.FocusEvent<HTMLButtonElement>) => {
+        if (event.relatedTarget === null ||
+            !document.getElementById(this.props.ID).contains(event.relatedTarget as Node))
+        {
+            this.setState({Display: false});
+        }
     }
 
     private handleInputBlur = (event: React.FocusEvent<HTMLInputElement>) => {
         const currValLength: number = event.target.value.length;
         if (event.relatedTarget === null ||
-            !event.target.parentElement.parentElement.contains(event.relatedTarget as Node))
+            !document.getElementById(this.props.ID).contains(event.relatedTarget as Node))
         {
             if (currValLength > 0) {
                 this.setState({HasValue: true});
@@ -275,7 +281,6 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
                 this.setState({HasDate: false});
             }
             this.setState({Display: false});
-            event.target.removeAttribute("placeholder");
         }
     }
 
@@ -290,7 +295,7 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
             } else {
                 this.setState({Value: currVal});
             }
-        } else if (reDelimiter.test(currVal.substring(currVal.length-1, currVal.length)) && currVal.length < 11) {
+        } else if (reDelimiter.test(currVal.substring(currVal.length - 1, currVal.length)) && currVal.length < 11) {
             this.setState({Value: currVal});
         }
 
