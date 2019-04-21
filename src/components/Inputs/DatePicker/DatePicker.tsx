@@ -123,11 +123,11 @@ export interface IDatePickerProps {
     OnHasDate?: (date: string) => void;
 }
 
-export interface IDatePickerState { 
+export interface IDatePickerState {
     Value: string;
     HasValue: boolean;
     HasDate: boolean;
-    Active: boolean; 
+    Active: boolean;
     ActiveCell: { Day: number, Month: number, Year: number};
     DateFormat: string;
     Display: boolean;
@@ -279,8 +279,6 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
         const reDelimiter = new RegExp("\/");
         if ((reNumber.test(currVal.substring(currVal.length-1, currVal.length)) && currVal.length < 11) || currVal.length === 0)
         {
-            console.log(currVal);
-            console.log(this.state.Value);
             if ((currVal.length === 2 || currVal.length === 5) && currVal > this.state.Value) {
                 this.setState({Value: currVal + "/"});
             } else {
