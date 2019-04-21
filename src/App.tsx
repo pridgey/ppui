@@ -2,6 +2,7 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { PrimaryButton, SecondaryButton } from "./Components";
+import { DatePicker } from "./Components/DatePicker2";
 
 const root = document.getElementById("app") as HTMLElement;
 
@@ -40,5 +41,8 @@ ReactDOM.render(
             Disabled={true}
             BorderColor="red"
         />
+        <div>
+            <DatePicker OnChange={(value) => alert("The date you have selected: " + value)}/>
+        </div>
     </>
     , root);
