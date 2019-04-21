@@ -1,7 +1,6 @@
 import * as React from "react";
 import styled from "styled-components";
-import { DayTable } from ".";
-import { Dropdown, IDropdownOption } from "../..";
+import { DayTable, Dropdown, IDropdownOption } from "../../../components";
 
 const ComponentWrapper = styled.div`
     display: flex;
@@ -78,13 +77,15 @@ const CalendarWrapper = styled.div`
     top: 65px;
     left: 5px; 
     outline: none;
+    border: 1px solid black;
+
 
     &::after {
         content:"";
         position: absolute;
         top: -15px;
         left: 5%;
-        background: #fefefe;
+        background: black;
         width: 20px;
         height: 15px;
         
@@ -95,7 +96,10 @@ const CalendarWrapper = styled.div`
 `;
 
 const CalendarBanner = styled.div`
-    width: 100%;    
+    width: 100%;
+    padding: 10px 0;
+    display: flex;
+    justify-content: space-evenly;
 `;
 
 const Month: { [number: string]: string } = {
@@ -178,8 +182,8 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
                 { this.state.Display ?
                     <CalendarWrapper tabIndex={0}>
                         <CalendarBanner>
-                        <Dropdown Value={this.state.ActiveCell.Month.toString()} Options={this.getMonthDropdownOptions()} OnChange={this.setMonth}/>
-                        <Dropdown Value={this.state.ActiveCell.Year.toString()} Options={this.getYearDropdownOptions()} OnChange={this.setYear}/>
+                            <Dropdown Value={this.state.ActiveCell.Month.toString()} Options={this.getMonthDropdownOptions()} OnChange={this.setMonth}/>
+                            <Dropdown Value={this.state.ActiveCell.Year.toString()} Options={this.getYearDropdownOptions()} OnChange={this.setYear}/>
                         </CalendarBanner>
                         <DayTable
                             ActiveCell={this.state.ActiveCell}
@@ -219,7 +223,9 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
         this.setState({Active: false, ActiveCell: { Day: day, Month: month, Year: year },
                        Display: false,
                        Value: this.formatValue(day, month, year),
-                       HasValue: true, HasDate: true,});
+                       HasValue: true, HasDate: true,}, () => {
+                           this.props.OnChange(this.state.Value);
+                       });
     }
 
     private setMonth = (value: string) => {
@@ -228,7 +234,9 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
         const year = this.state.ActiveCell.Year;
         this.setState({HasValue: true, HasDate: true, Display: true,
                        Value: this.formatValue(day, month, year),
-                       ActiveCell: {Day: day, Month: month, Year: year}});
+                       ActiveCell: {Day: day, Month: month, Year: year}}, () => {
+                        this.props.OnChange(this.state.Value);
+                       });
     }
 
     private setYear = (value: string) => {
@@ -237,7 +245,9 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
         const year: number = Number(value);
         this.setState({HasValue: true, HasDate: true, Display: true,
                        Value: this.formatValue(day, month, year),
-                       ActiveCell: {Day: day, Month: month, Year: year}});
+                       ActiveCell: {Day: day, Month: month, Year: year}}, () => {
+                        this.props.OnChange(this.state.Value);
+                       });
     }
 
     private handleInputClick = (event: any) => {
@@ -294,7 +304,9 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
             const month = Number(currVal.substring(0,2));
             const day = Number(currVal.substring(3,5));
             const year = Number(currVal.substring(6,10));
-            this.setState({ActiveCell: {Day: day, Month: month-1, Year: year}});
+            this.setState({ActiveCell: {Day: day, Month: month-1, Year: year}}, () => {
+                this.props.OnChange(this.state.Value);
+            });
         } else if (currVal.length == 9) {
             this.setState({HasDate: false});
         }        
