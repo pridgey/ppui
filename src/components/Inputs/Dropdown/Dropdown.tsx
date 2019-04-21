@@ -24,6 +24,7 @@ export interface IDropdownState {
 
 export class Dropdown extends React.Component<IDropdownProps, IDropdownState> {
     public static getDerivedStateFromProps(nextProps: IDropdownProps) {
+        console.log('here');
         return {
             Value: nextProps.Value,
         }
@@ -47,8 +48,9 @@ export class Dropdown extends React.Component<IDropdownProps, IDropdownState> {
     }
 
     public OnChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        this.setState({ Value: event.target.value }, () => {
-            this.props.OnChange(this.state.Value);
+        const value: string = event.target.value;
+        this.setState({ Value: value }, () => {
+            this.props.OnChange(value);
         });        
     }
 }

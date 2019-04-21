@@ -240,6 +240,7 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
     }
 
     private setYear = (value: string) => {
+        console.log(value);
         const day = this.state.ActiveCell.Day;
         const month = this.state.ActiveCell.Month;
         const year: number = Number(value);
@@ -260,7 +261,8 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
 
     private handleInputBlur = (event: React.FocusEvent<HTMLInputElement>) => {
         const currValLength: number = event.target.value.length;
-        if (event.relatedTarget == null || event.target.contains(event.relatedTarget as Node))
+        if (event.relatedTarget == null || 
+            !event.target.parentElement.parentElement.contains(event.relatedTarget as Node))
         {
             if (currValLength > 0)
             {
@@ -271,7 +273,7 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
                 this.setState({HasValue: false});
             }
             if(currValLength == this.state.DateFormat.length)
-                this.setState({HasDate: true});                
+                this.setState({HasDate: true});
             else
                 this.setState({HasDate: false});            
             this.setState({Display: false});

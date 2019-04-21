@@ -41,13 +41,13 @@ ReactDOM.render(
             BorderColor="red"
         />
         <div style={{padding:"20px", display: "flex", justifyContent: "space-between"}}>
-            <DatePicker OnChange={(value) => alert("The date you have selected: " + value)}/>
             <DatePicker OnChange={(value) => console.log("The date you have selected: " + value)}/>
-            <DatePicker OnChange={(value) => alert("The date you have selected: " + value)}/>
+            <DatePicker OnChange={(value) => console.log("The date you have selected: " + value)}/>
+            <DatePicker OnChange={(value) => console.log("The date you have selected: " + value)}/>
         </div>
         <div style={{padding:"20px", overflow: "hidden", height: "200px"}}>
                 <h5>Overflow &amp; Display issue...</h5>
-                <DatePicker OnChange={(value) => alert("The date you have selected: " + value)}/>
+                <DatePicker OnChange={(value) => console.log("The date you have selected: " + value)}/>
         </div>
     </>
     , root);
