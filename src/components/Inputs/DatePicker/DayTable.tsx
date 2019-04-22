@@ -119,8 +119,7 @@ export class DayTable extends React.Component<IDayTableProps, IDayTableState> {
     }
 
     private handleKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
-        const enterKey: number = 13;
-        if (event.keyCode === enterKey) {
+        if (event.key === "Enter") {
             const year = Number((event.target as HTMLButtonElement).dataset.year);
             const month = Number((event.target as HTMLButtonElement).dataset.month);
             const day = Number((event.target as HTMLButtonElement).dataset.day);
