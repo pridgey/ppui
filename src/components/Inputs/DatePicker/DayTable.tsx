@@ -119,8 +119,7 @@ export class DayTable extends React.Component<IDayTableProps, IDayTableState> {
     }
 
     private handleKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
-        const enterKey: number = 13;
-        if (event.keyCode === enterKey) {
+        if (event.key === "Enter") {
             const year = Number((event.target as HTMLButtonElement).dataset.year);
             const month = Number((event.target as HTMLButtonElement).dataset.month);
             const day = Number((event.target as HTMLButtonElement).dataset.day);
@@ -159,6 +158,27 @@ export class DayTable extends React.Component<IDayTableProps, IDayTableState> {
         return daysOfTheMonth;
     }
 
+    private createDayCell = (day: number, month: number, year: number, key: string, cellStyle: object, buttonStyle: object): JSX.Element => {
+        return (
+            <CalendarTD
+            key={key}
+            style={cellStyle}
+            >
+                <CalendarTDButton
+                    onMouseDown={this.handleMouseDown}
+                    onKeyDown={this.handleKeyDown}
+                    onBlur={this.handleBlur}
+                    data-day={day}
+                    data-month={month}
+                    data-year={year}
+                    style={buttonStyle}
+                >
+                    {day.toString()}
+                </CalendarTDButton>
+        </CalendarTD>
+        );
+    }
+
     private loadStartFillers = (daysOfTheMonth: any) => {
         let year: number = this.state.ActiveCell.Year;
         let month: number = Number(this.state.ActiveCell.Month) - 1;
@@ -171,21 +191,7 @@ export class DayTable extends React.Component<IDayTableProps, IDayTableState> {
         const rowFillers: any[] = [];
         for (let idx = 0; idx <= numFillers; idx++) {
             const day = numDays - numFillers + idx;
-            rowFillers.push(<CalendarTD
-                                key={`StartFillerCell${day}`}
-                            >
-                                <CalendarTDButton
-                                    onMouseDown={this.handleMouseDown}
-                                    onKeyDown={this.handleKeyDown}
-                                    onBlur={this.handleBlur}
-                                    data-day={day}
-                                    data-month={month}
-                                    data-year={year}
-                                    style={{color: "#dddddd"}}
-                                >
-                                    {day.toString()}
-                                </CalendarTDButton>
-                            </CalendarTD>);
+            rowFillers.push(this.createDayCell(day, month, year, `StartFillerCell${day}`, undefined, {color: "#dddddd"}));
         }
         return rowFillers;
     }
@@ -205,21 +211,7 @@ export class DayTable extends React.Component<IDayTableProps, IDayTableState> {
         const rowFillers: JSX.Element[] = [];
         for (let idx = 0; idx < numFillers; idx++) {
             const day = idx + 1;
-            rowFillers.push(<CalendarTD
-                                key={`EndFillerCell${day}`}
-                            >
-                                <CalendarTDButton
-                                    onMouseDown={this.handleMouseDown}
-                                    onKeyDown={this.handleKeyDown}
-                                    onBlur={this.handleBlur}
-                                    data-day={day}
-                                    data-month={month}
-                                    data-year={year}
-                                    style={{color: "#dddddd"}}
-                                >
-                                    {day.toString()}
-                                </CalendarTDButton>
-                            </CalendarTD>);
+            rowFillers.push(this.createDayCell(day, month, year, `EndFillerCell${day}`, undefined, {color: "#dddddd"}));
         }
         return rowFillers;
     }
@@ -236,21 +228,7 @@ export class DayTable extends React.Component<IDayTableProps, IDayTableState> {
         const rowFillers: JSX.Element[] = [];
         for (let idx = day; idx < day + numFillers; idx++) {
             const currDay = idx + 1;
-            rowFillers.push(<CalendarTD
-                                key={`EndFillerCell${currDay}`}
-                            >
-                                <CalendarTDButton
-                                    onMouseDown={this.handleMouseDown}
-                                    onKeyDown={this.handleKeyDown}
-                                    onBlur={this.handleBlur}
-                                    data-day={currDay}
-                                    data-month={month}
-                                    data-year={year}
-                                    style={{color: "#dddddd"}}
-                                >
-                                    {currDay.toString()}
-                                </CalendarTDButton>
-                            </CalendarTD>);
+            rowFillers.push(this.createDayCell(currDay, month, year, `EndFillerCell${currDay}`, undefined, {color: "#dddddd"}));
         }
         return rowFillers;
     }
@@ -259,56 +237,17 @@ export class DayTable extends React.Component<IDayTableProps, IDayTableState> {
         const rows: JSX.Element[] = [];
         let row: JSX.Element[] = this.loadStartFillers(daysOfTheMonth);
         for (const item of daysOfTheMonth) {
-            let cell = (<CalendarTD
-                            key={`Cell${item.day}`}
-                        >
-                            <CalendarTDButton
-                                onMouseDown={this.handleMouseDown}
-                                onKeyDown={this.handleKeyDown}
-                                onBlur={this.handleBlur}
-                                data-day={item.day}
-                                data-month={this.state.ActiveCell.Month}
-                                data-year={this.state.ActiveCell.Year}
-                            >
-                                {item.day.toString()}
-                            </CalendarTDButton>
-                        </CalendarTD>);
-            if (Today.getDate() === item.day && Today.getMonth() === this.state.ActiveCell.Month && Today.getFullYear() === this.state.ActiveCell.Year) {
-                cell = (<CalendarTD
-                    key={`Cell${item.day}`}
-                    style={{background: "#eeeeee"}}
-                >
-                    <CalendarTDButton
-                        onMouseDown={this.handleMouseDown}
-                        onKeyDown={this.handleKeyDown}
-                        onBlur={this.handleBlur}
-                        data-day={item.day}
-                        data-month={this.state.ActiveCell.Month}
-                        data-year={this.state.ActiveCell.Year}
-                    >
-                        {item.day.toString()}
-                    </CalendarTDButton>
-                </CalendarTD>);
-            }
-            if (this.state.ActiveCell !== undefined) {
-                if (this.state.ActiveCell.Day === item.day && this.state.ActiveCell.Month === this.state.ActiveCell.Month && this.state.ActiveCell.Year === this.state.ActiveCell.Year) {
-                    cell = (<CalendarTD
-                                key={`Cell${item.day}`}
-                                style={{background: "#1168b3"}}
-                            >
-                                <CalendarTDButton
-                                    onMouseDown={this.handleMouseDown}
-                                    onKeyDown={this.handleKeyDown}
-                                    onBlur={this.handleBlur}
-                                    data-day={item.day}
-                                    data-month={this.state.ActiveCell.Month}
-                                    data-year={this.state.ActiveCell.Year}
-                                    style={{color: "white"}}
-                                >
-                                    {item.day.toString()}
-                                </CalendarTDButton>
-                            </CalendarTD>);
-                }
+            let cell: JSX.Element;
+            // if current day == ActiveCell
+            if ((this.state.ActiveCell !== undefined) &&
+                (this.state.ActiveCell.Day === item.day && this.state.ActiveCell.Month === this.state.ActiveCell.Month && this.state.ActiveCell.Year === this.state.ActiveCell.Year)) {
+                    cell = this.createDayCell(item.day, this.state.ActiveCell.Month, this.state.ActiveCell.Year, `Cell${item.day}`, {background: "#1168b3"}, {color: "white"});
+            // if current day == today
+            } else if (Today.getDate() === item.day && Today.getMonth() === this.state.ActiveCell.Month && Today.getFullYear() === this.state.ActiveCell.Year) {
+                cell = this.createDayCell(item.day, this.state.ActiveCell.Month, this.state.ActiveCell.Year, `Cell${item.day}`, {background: "#eeeeee"}, undefined);
+            // if current day != ActiveCell && != today
+            } else {
+                cell = this.createDayCell(item.day, this.state.ActiveCell.Month, this.state.ActiveCell.Year, `Cell${item.day}`, undefined, undefined);
             }
 
             row.push(cell);

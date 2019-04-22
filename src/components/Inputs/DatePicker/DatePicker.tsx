@@ -95,11 +95,20 @@ const CalendarWrapper = styled.div`
     }
 `;
 
-const CalendarBanner = styled.div`
+const CalendarHeader = styled.header`
     width: 100%;
     padding: 10px 0;
     display: flex;
     justify-content: space-evenly;
+`;
+
+const CalendarFooter = styled.footer`
+    display: flex;
+    justify-content: center;
+`;
+
+const TodayButton = styled.button`
+
 `;
 
 const Month: { [decimal: string]: string } = {
@@ -135,7 +144,7 @@ export interface IDatePickerState {
     Active: boolean;
     ActiveCell: { Day: number, Month: number, Year: number};
     DateFormat: string;
-    Display: boolean;
+    IsCalendarOpen: boolean;
 }
 
 export class DatePicker extends React.Component<IDatePickerProps, IDatePickerState> {
@@ -157,7 +166,7 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
             Active: false,
             ActiveCell: { Day: startDay, Month: startMonth, Year: startYear},
             DateFormat: this.props.DateFormat !== undefined ? this.props.DateFormat : this.DefaultDateFormat,
-            Display: false,
+            IsCalendarOpen: false,
         };
     }
 
@@ -169,29 +178,32 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
                         onFocus={this.handleInputFocus}
                         onBlur={this.handleInputBlur}
                         onChange={this.handleInputChange}
-                        placeholder={this.state.Display && !this.state.HasValue ? (this.props.DateFormat ? this.props.DateFormat : this.DefaultDateFormat) : undefined}
+                        placeholder={this.state.IsCalendarOpen && !this.state.HasValue ? (this.props.DateFormat ? this.props.DateFormat : this.DefaultDateFormat) : undefined}
                         value={this.state.HasDate ?
-                            `${("0" + (Number(this.state.ActiveCell.Month) + 1).toString()).slice(-2)}/${("0" + this.state.ActiveCell.Day.toString()).slice(-2)}/${this.state.ActiveCell.Year.toString()}`
+                            this.formatValue(this.state.ActiveCell.Day, this.state.ActiveCell.Month, this.state.ActiveCell.Year)
                             :
                             this.state.Value}
                     />
-                        {this.state.Display || this.state.HasValue ?
+                        {this.state.IsCalendarOpen || this.state.HasValue ?
                             <FloatingLabel><span>Pick a Date</span></FloatingLabel>
                         :
                             <InputLabel><span>Pick a Date</span></InputLabel>
                         }
                 </InputWrapper>
-                { this.state.Display ?
+                { this.state.IsCalendarOpen ?
                     <CalendarWrapper>
-                        <CalendarBanner>
-                            <Dropdown Value={this.state.ActiveCell.Month.toString()} Options={this.getMonthDropdownOptions()} OnChange={this.setMonth}/>
-                            <Dropdown Value={this.state.ActiveCell.Year.toString()} Options={this.getYearDropdownOptions()} OnChange={this.setYear}/>
-                        </CalendarBanner>
+                        <CalendarHeader>
+                            <Dropdown Value={this.state.ActiveCell.Month.toString()} Options={this.getMonthDropdownOptions()} OnChange={this.setMonth} OnBlur={this.handleChildBlur}/>
+                            <Dropdown Value={this.state.ActiveCell.Year.toString()} Options={this.getYearDropdownOptions()} OnChange={this.setYear} OnBlur={this.handleChildBlur}/>
+                        </CalendarHeader>
                         <DayTable
                             ActiveCell={this.state.ActiveCell}
                             OnClick={this.setDay}
-                            OnBlur={this.handleButtonBlur}
+                            OnBlur={this.handleChildBlur}
                         />
+                        <CalendarFooter>
+                            <TodayButton onClick={this.setDateToToday} onBlur={this.handleChildBlur}>Today</TodayButton>
+                        </CalendarFooter>
                     </CalendarWrapper>
                     :
                     undefined
@@ -222,11 +234,27 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
         return `${("0" + (Number(month) + 1).toString()).slice(-2)}/${("0" + day.toString()).slice(-2)}/${year.toString()}`;
     }
 
+    private setDateToToday = () => {
+        const today: Date = new Date();
+        const day: number = today.getDate();
+        const month: number = today.getMonth();
+        const year: number = today.getFullYear();
+        this.setState({
+            ActiveCell: {
+                Day: day,
+                Month: month,
+                Year: year,
+            },
+            Value: this.formatValue(day, month, year),
+            HasValue: true, HasDate: true,
+        });
+    }
+
     private setDay = (year: number, month: number, day: number) => {
         this.setState({Active: false, ActiveCell: { Day: day, Month: month, Year: year },
-                       Display: false,
+                       IsCalendarOpen: false,
                        Value: this.formatValue(day, month, year),
-                       HasValue: true, HasDate: true,}, () => {
+                       HasValue: true, HasDate: true}, () => {
                            this.props.OnChange(this.state.Value);
                        });
     }
@@ -235,7 +263,7 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
         const day = this.state.ActiveCell.Day;
         const month: number = Number(value);
         const year = this.state.ActiveCell.Year;
-        this.setState({HasValue: true, HasDate: true, Display: true,
+        this.setState({HasValue: true, HasDate: true, IsCalendarOpen: true,
                        Value: this.formatValue(day, month, year),
                        ActiveCell: {Day: day, Month: month, Year: year}}, () => {
                         this.props.OnChange(this.state.Value);
@@ -246,7 +274,7 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
         const day = this.state.ActiveCell.Day;
         const month = this.state.ActiveCell.Month;
         const year: number = Number(value);
-        this.setState({HasValue: true, HasDate: true, Display: true,
+        this.setState({HasValue: true, HasDate: true, IsCalendarOpen: true,
                        Value: this.formatValue(day, month, year),
                        ActiveCell: {Day: day, Month: month, Year: year}}, () => {
                         this.props.OnChange(this.state.Value);
@@ -254,14 +282,14 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
     }
 
     private handleInputFocus = () => {
-        this.setState({Display: true});
+        this.setState({IsCalendarOpen: true});
     }
 
-    private handleButtonBlur = (event: React.FocusEvent<HTMLButtonElement>) => {
+    private handleChildBlur = (event: React.FocusEvent<HTMLElement>) => {
         if (event.relatedTarget === null ||
             !document.getElementById(this.props.ID).contains(event.relatedTarget as Node))
         {
-            this.setState({Display: false});
+            this.setState({IsCalendarOpen: false});
         }
     }
 
@@ -280,7 +308,7 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
             } else {
                 this.setState({HasDate: false});
             }
-            this.setState({Display: false});
+            this.setState({IsCalendarOpen: false});
         }
     }
 
