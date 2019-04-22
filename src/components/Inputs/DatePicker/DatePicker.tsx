@@ -193,8 +193,10 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
                 { this.state.IsCalendarOpen ?
                     <CalendarWrapper>
                         <CalendarHeader>
+                            <button onClick={() => this.changeMonth(-1)}>prev</button>
                             <Dropdown Value={this.state.ActiveCell.Month.toString()} Options={this.getMonthDropdownOptions()} OnChange={this.setMonth} OnBlur={this.handleChildBlur}/>
                             <Dropdown Value={this.state.ActiveCell.Year.toString()} Options={this.getYearDropdownOptions()} OnChange={this.setYear} OnBlur={this.handleChildBlur}/>
+                            <button onClick={() => this.changeMonth(1)}>next</button>
                         </CalendarHeader>
                         <DayTable
                             ActiveCell={this.state.ActiveCell}
@@ -210,6 +212,24 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
                 }
             </ComponentWrapper>
         );
+    }
+
+    private changeMonth = (difference: number) => {
+        const activeCell = this.state.ActiveCell;
+        const sum = activeCell.Month + difference;
+        if (sum < 0) {
+            activeCell.Month = 11;
+            activeCell.Year--;
+        } else if (sum > 11) {
+            activeCell.Month = 0;
+            activeCell.Year++;
+        } else {
+            activeCell.Month = sum;
+        }
+        this.setState({
+            ActiveCell: activeCell,
+            Value: this.formatValue(activeCell.Day, activeCell.Month, activeCell.Year),
+        });
     }
 
     private getMonthDropdownOptions = (): IDropdownOption[] => {
