@@ -72,10 +72,10 @@ const CalendarWrapper = styled.div`
     background: #fefefe;
     height: 350px;
     width: 300px;
+    box-sizing: border-box;
     border-radius: 7.5px;
     position: absolute;
-    top: 65px;
-    left: 5px;
+    z-index: 1;
     outline: none;
     border: 1px solid black;
 
@@ -83,8 +83,6 @@ const CalendarWrapper = styled.div`
     &::after {
         content:"";
         position: absolute;
-        top: -15px;
-        left: 5%;
         background: black;
         width: 20px;
         height: 15px;
@@ -92,6 +90,45 @@ const CalendarWrapper = styled.div`
         /* The points are: (left top: x y, right top: x y, center bottom: x y) */
         -webkit-clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
         clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+    }
+
+    &[data-transformy="bottom"] {
+        top: 55px;
+
+        &::after {
+            top: -15px;
+        }
+    }
+
+    &[data-transformy="top"] {
+        bottom: 65px;
+        &::after {
+            bottom: -15px;
+            transform: rotate(180deg)
+        }
+    }
+
+    &[data-transformx="right"] {
+        left: 5px;
+
+        &::after {
+            left: 5%;
+        }
+    }
+
+    &[data-transformx="left"] {
+        right: 5px;
+
+        &::after {
+            right: 50%;
+        }
+    }
+
+    &[data-transformx="fill"][data-transformy="fill"] {
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
     }
 `;
 
@@ -141,11 +178,12 @@ export interface IDatePickerState {
     Value: string;
     HasValue: boolean;
     HasDate: boolean;
-    Active: boolean;
     ActiveCell: { Day: number, Month: number, Year: number};
     DateFormat: string;
     IsCalendarOpen: boolean;
 }
+
+const today: Date = new Date();
 
 export class DatePicker extends React.Component<IDatePickerProps, IDatePickerState> {
     private DefaultDateFormat: string = "mm/dd/yyyy";
@@ -153,7 +191,6 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
     constructor(props: any) {
         super(props);
 
-        const today: Date = new Date();
         const startValue: boolean = this.props.StartDate !== undefined;
         const startYear: number = this.props.StartDate ? this.props.StartDate.getFullYear() : today.getFullYear();
         const startMonth: number = this.props.StartDate ? this.props.StartDate.getMonth() : today.getMonth();
@@ -163,11 +200,15 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
             Value: startValue ? `${("0" + (Number(this.props.StartDate.getMonth()) + 1).toString()).slice(-2)}/${("0" + this.props.StartDate.getDate().toString()).slice(-2)}/${this.props.StartDate.getFullYear().toString()}` : "",
             HasValue: startValue ? true : false,
             HasDate: startValue ? true : false,
-            Active: false,
             ActiveCell: { Day: startDay, Month: startMonth, Year: startYear},
             DateFormat: this.props.DateFormat !== undefined ? this.props.DateFormat : this.DefaultDateFormat,
             IsCalendarOpen: false,
         };
+        window.addEventListener("resize", this.checkOverflow);
+    }
+
+    public componentDidUpdate() {
+        this.checkOverflow();
     }
 
     public render() {
@@ -191,15 +232,15 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
                         }
                 </InputWrapper>
                 { this.state.IsCalendarOpen ?
-                    <CalendarWrapper>
+                    <CalendarWrapper id={this.props.ID + "_CalendarWrapper"} data-transformx="right" data-transformy="bottom">
                         <CalendarHeader>
                             <button onClick={() => this.changeMonth(-1)} onBlur={this.handleChildBlur}>prev</button>
-                            <Dropdown Value={this.state.ActiveCell.Month.toString()} Options={this.getMonthDropdownOptions()} OnChange={this.setMonth} OnBlur={this.handleChildBlur}/>
-                            <Dropdown Value={this.state.ActiveCell.Year.toString()} Options={this.getYearDropdownOptions()} OnChange={this.setYear} OnBlur={this.handleChildBlur}/>
+                            <Dropdown Value={this.state.HasDate ? this.state.ActiveCell.Month.toString() : today.getMonth().toString()} Options={this.getMonthDropdownOptions()} OnChange={this.setMonth} OnBlur={this.handleChildBlur}/>
+                            <Dropdown Value={this.state.HasDate ? this.state.ActiveCell.Year.toString() : today.getFullYear().toString()} Options={this.getYearDropdownOptions()} OnChange={this.setYear} OnBlur={this.handleChildBlur}/>
                             <button onClick={() => this.changeMonth(1)} onBlur={this.handleChildBlur}>next</button>
                         </CalendarHeader>
                         <DayTable
-                            ActiveCell={this.state.ActiveCell}
+                            ActiveCell={this.state.HasDate ? this.state.ActiveCell : {Day: today.getDate(), Month: today.getMonth(), Year: today.getFullYear()}}
                             OnClick={this.setDay}
                             OnBlur={this.handleChildBlur}
                         />
@@ -212,6 +253,52 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
                 }
             </ComponentWrapper>
         );
+    }
+
+    private checkOverflow = () => {
+        if (this.state.IsCalendarOpen) {
+            const element = document.getElementById(this.props.ID + "_CalendarWrapper");
+            element.dataset.transformy = "bottom";
+            element.dataset.transformx = "right";
+            element.parentElement.style.position = "relative";
+            // detect if calendar has bottom overflow
+            const bottomOverflow: boolean = 0 > (window.innerHeight -
+                                                (element.offsetHeight +
+                                                element.parentElement.offsetTop +
+                                                element.parentElement.offsetHeight));
+            if (bottomOverflow) {
+                element.dataset.transformy = "top";
+            }
+
+            // detect if calendar has right overflow
+            const rightOverflow: boolean = 0 > (window.innerWidth -
+                (element.parentElement.offsetLeft +
+                element.offsetLeft +
+                element.offsetWidth));
+            if (rightOverflow) {
+                element.dataset.transformx = "left";
+            }
+
+            // detect if calendar has top overflow
+            const topOverflow: boolean = 0 > (element.parentElement.offsetTop - element.offsetHeight);
+            if (topOverflow && bottomOverflow) {
+                element.parentElement.style.position = "unset";
+                element.dataset.transformy = "fill";
+                element.dataset.transformx = "fill";
+            }
+
+            // detect if calendar has left overflow ... this might not always work, seems strange
+            const leftOverflow: boolean = 0 > (element.parentElement.offsetLeft);
+            if (leftOverflow && rightOverflow) {
+                element.parentElement.style.position = "unset";
+                element.dataset.transformx = "fill";
+                element.dataset.transformy = "fill";
+            }
+            console.log("Should Handle Bottom Overflow: " + bottomOverflow);
+            console.log("Should Handle Top Overflow: " + topOverflow);
+            console.log("Should Handle Right Overflow: " + rightOverflow);
+            console.log("Should Handle Left Overflow: " + leftOverflow);
+        }
     }
 
     private changeMonth = (difference: number) => {
@@ -256,7 +343,6 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
     }
 
     private setDateToToday = () => {
-        const today: Date = new Date();
         const day: number = today.getDate();
         const month: number = today.getMonth();
         const year: number = today.getFullYear();
@@ -272,7 +358,7 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
     }
 
     private setDay = (year: number, month: number, day: number) => {
-        this.setState({Active: false, ActiveCell: { Day: day, Month: month, Year: year },
+        this.setState({ActiveCell: { Day: day, Month: month, Year: year },
                        IsCalendarOpen: false,
                        Value: this.formatValue(day, month, year),
                        HasValue: true, HasDate: true}, () => {
@@ -337,24 +423,22 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
         const currVal: string = event.target.value;
         const reNumber = new RegExp("\\d");
         const reDelimiter = new RegExp("\/");
-        if ((reNumber.test(currVal.substring(currVal.length - 1, currVal.length)) && currVal.length < 11) || currVal.length === 0)
-        {
+        if ((reNumber.test(currVal.substring(currVal.length - 1, currVal.length)) && currVal.length < 11) || currVal.length === 0) {
             if ((currVal.length === 2 || currVal.length === 5) && currVal > this.state.Value) {
-                this.setState({Value: currVal + "/"});
+                this.setState({Value: currVal + "/", HasDate: false});
             } else {
-                this.setState({Value: currVal});
+                this.setState({Value: currVal, HasDate: false});
             }
         } else if (reDelimiter.test(currVal.substring(currVal.length - 1, currVal.length)) && currVal.length < 11) {
             this.setState({Value: currVal});
         }
 
         // update ActiveCell if new value's length matches DateFormat's length
-        if (currVal.length === 10)
-        {
+        if (currVal.length === 10) {
             const month = Number(currVal.substring(0, 2));
             const day = Number(currVal.substring(3, 5));
             const year = Number(currVal.substring(6, 10));
-            this.setState({ActiveCell: {Day: day, Month: month - 1, Year: year}}, () => {
+            this.setState({ActiveCell: {Day: day, Month: month - 1, Year: year}, HasDate: true}, () => {
                 this.props.OnChange(this.state.Value);
             });
         } else if (currVal.length === 9) {

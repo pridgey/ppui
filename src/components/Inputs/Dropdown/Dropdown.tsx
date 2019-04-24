@@ -34,7 +34,7 @@ export class Dropdown extends React.Component<IDropdownProps, IDropdownState> {
         super(props);
         this.state = {
             Value: this.props.Value,
-        }
+        };
     }
 
     public render() {
