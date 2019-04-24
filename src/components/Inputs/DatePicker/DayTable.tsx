@@ -62,7 +62,7 @@ const Weekday: { [decimal: string]: string } = {
     4: "Th",
     5: "Fr",
     6: "Sa",
-}
+};
 
 export interface IDayTableProps {
     ActiveCell: { Day: number, Month: number, Year: number};

@@ -161,7 +161,7 @@ const Month: { [decimal: string]: string } = {
     9: "Oct",
     10: "Nov",
     11: "Dec",
-}
+};
 
 export interface IDatePickerProps {
     ID: string;
@@ -394,8 +394,7 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
 
     private handleChildBlur = (event: React.FocusEvent<HTMLElement>) => {
         if (event.relatedTarget === null ||
-            !document.getElementById(this.props.ID).contains(event.relatedTarget as Node))
-        {
+            !document.getElementById(this.props.ID).contains(event.relatedTarget as Node)) {
             this.setState({IsCalendarOpen: false});
         }
     }
@@ -403,8 +402,7 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
     private handleInputBlur = (event: React.FocusEvent<HTMLInputElement>) => {
         const currValLength: number = event.target.value.length;
         if (event.relatedTarget === null ||
-            !document.getElementById(this.props.ID).contains(event.relatedTarget as Node))
-        {
+            !document.getElementById(this.props.ID).contains(event.relatedTarget as Node)) {
             if (currValLength > 0) {
                 this.setState({HasValue: true});
             } else {

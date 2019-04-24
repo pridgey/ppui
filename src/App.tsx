@@ -40,7 +40,7 @@ ReactDOM.render(
             Disabled={true}
             BorderColor="red"
         />
-        <div style={{ padding:"20px", display: "flex", justifyContent: "space-between"}}>
+        <div style={{ padding: "20px", display: "flex", justifyContent: "space-between"}}>
             <DatePicker ID="DatePicker1" OnChange={(value) => console.log("The date you have selected: " + value)}/>
         </div>
     </>
