@@ -1,5 +1,5 @@
 import * as React from "react";
-import styled from 'styled-components';
+import styled from "styled-components";
 
 const Select = styled.select`
 `;
@@ -27,14 +27,14 @@ export class Dropdown extends React.Component<IDropdownProps, IDropdownState> {
     public static getDerivedStateFromProps(nextProps: IDropdownProps) {
         return {
             Value: nextProps.Value,
-        }
+        };
     }
 
-    constructor(props: any){
+    constructor(props: any) {
         super(props);
         this.state = {
             Value: this.props.Value,
-        }
+        };
     }
 
     public render() {
