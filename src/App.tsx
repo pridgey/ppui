@@ -1,47 +1,67 @@
 // react
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { DatePicker, PrimaryButton, SecondaryButton } from "./components";
+import { Button, DatePicker } from "./components";
 
 const root = document.getElementById("app") as HTMLElement;
 
 ReactDOM.render(
     <>
-        <PrimaryButton
-            Caption="Primary!"
-            OnClick={() => alert("You clicked the button!")}
+        <Button
+            Caption="Small"
+            OnClick={() => alert("You clicked the best button")}
+            Size="small"
+            TextColor="Black"
         />
-        <PrimaryButton
-            Caption="a primary with a custom color"
-            OnClick={() => alert("You clicked the button 2!")}
-            BackgroundColor="#6DD6FF"
-            TextColor="black"
+        <Button
+            Caption="Medium"
+            OnClick={() => alert("You clicked the best button")}
+            Size="medium"
+            ButtonColor="#6DD6FF"
+            TextColor="Black"
         />
-        <PrimaryButton
-            Caption="Disabled Primary Button!"
-            OnClick={() => alert("You'll never see this.")}
+        <Button
+            Caption="Large"
+            OnClick={() => alert("You clicked the best button")}
+            Size="large"
+            TextColor="White"
+        />
+        <Button
+            Caption="Disabled"
+            OnClick={() => alert("You clicked the best button")}
+            Size="large"
             Disabled={true}
-            BackgroundColor="red"
         />
         <br />
-        <SecondaryButton
-            Caption="Secondary"
-            OnClick={() => alert("You've clicked a secondary button")}
+        <Button
+            Caption="Small"
+            OnClick={() => alert("You clicked the best button")}
+            Size="small"
+            OrdinalType="secondary"
         />
-        <SecondaryButton
-            Caption="Secondary button with new color"
-            OnClick={() => alert("You've clicked another secondary button")}
-            BorderColor="#00CCAA"
+        <Button
+            Caption="Medium"
+            OnClick={() => alert("You clicked the best button")}
+            Size="medium"
+            OrdinalType="secondary"
+            ButtonColor="#00CCAA"
             TextColor="#00CCAA"
         />
-        <SecondaryButton
-            Caption="A disabled secondary button"
-            OnClick={() => alert("You should never see this.")}
-            Disabled={true}
-            BorderColor="red"
+        <Button
+            Caption="Large"
+            OnClick={() => alert("You clicked the best button")}
+            Size="large"
+            OrdinalType="secondary"
         />
-        <div style={{ padding: "20px", display: "flex", justifyContent: "space-between"}}>
-            <DatePicker ID="DatePicker1" OnChange={(value) => console.log("The date you have selected: " + value)}/>
+        <Button
+            Caption="Disabled"
+            OnClick={() => alert("You clicked the best button")}
+            Size="large"
+            OrdinalType="secondary"
+            Disabled={true}
+        />
+        <div style={{ padding: "20px", display: "flex", justifyContent: "space-between" }}>
+            <DatePicker ID="DatePicker1" OnChange={(value) => console.log("The date you have selected: " + value)} />
         </div>
     </>
     , root);

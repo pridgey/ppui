@@ -1,10 +1,10 @@
 import * as React from "react";
 import styled from "styled-components";
+import { theme } from "./../../../theming/theme";
 
 const CalendarTable = styled.table`
     width: 100%;
     border-spacing: 0;
-    border: 1px solid black;
 `;
 
 const CalendarTbody = styled.tbody`
@@ -35,13 +35,12 @@ const CalendarTH = styled.th`
 
 const CalendarTD = styled.td`
     text-align: center;
-    border-radius: 50px;
     border: 1px solid #fefefe;
 
     &:hover {
-        border: 1px solid black;
-        background: #1168b3;
+        background-color: ${theme.colorPrimary};
         color: white;
+        opacity: 0.7;
     }
 `;
 
@@ -65,13 +64,13 @@ const Weekday: { [decimal: string]: string } = {
 };
 
 export interface IDayTableProps {
-    ActiveCell: { Day: number, Month: number, Year: number};
+    ActiveCell: { Day: number, Month: number, Year: number };
     OnClick: (year: number, month: number, day: number) => void;
     OnBlur: (event: React.FocusEvent<HTMLButtonElement>) => void;
 }
 
 export interface IDayTableState {
-    ActiveCell: { Day: number, Month: number, Year: number};
+    ActiveCell: { Day: number, Month: number, Year: number };
 }
 
 const Today: Date = new Date();
@@ -161,8 +160,8 @@ export class DayTable extends React.Component<IDayTableProps, IDayTableState> {
     private createDayCell = (day: number, month: number, year: number, key: string, cellStyle: object, buttonStyle: object): JSX.Element => {
         return (
             <CalendarTD
-            key={key}
-            style={cellStyle}
+                key={key}
+                style={cellStyle}
             >
                 <CalendarTDButton
                     onMouseDown={this.handleMouseDown}
@@ -175,7 +174,7 @@ export class DayTable extends React.Component<IDayTableProps, IDayTableState> {
                 >
                     {day.toString()}
                 </CalendarTDButton>
-        </CalendarTD>
+            </CalendarTD>
         );
     }
 
@@ -191,7 +190,7 @@ export class DayTable extends React.Component<IDayTableProps, IDayTableState> {
         const rowFillers: any[] = [];
         for (let idx = 0; idx <= numFillers; idx++) {
             const day = numDays - numFillers + idx;
-            rowFillers.push(this.createDayCell(day, month, year, `StartFillerCell${day}`, undefined, {color: "#dddddd"}));
+            rowFillers.push(this.createDayCell(day, month, year, `StartFillerCell${day}`, undefined, { color: "#dddddd" }));
         }
         return rowFillers;
     }
@@ -211,7 +210,7 @@ export class DayTable extends React.Component<IDayTableProps, IDayTableState> {
         const rowFillers: JSX.Element[] = [];
         for (let idx = 0; idx < numFillers; idx++) {
             const day = idx + 1;
-            rowFillers.push(this.createDayCell(day, month, year, `EndFillerCell${day}`, undefined, {color: "#dddddd"}));
+            rowFillers.push(this.createDayCell(day, month, year, `EndFillerCell${day}`, undefined, { color: "#dddddd" }));
         }
         return rowFillers;
     }
@@ -228,7 +227,7 @@ export class DayTable extends React.Component<IDayTableProps, IDayTableState> {
         const rowFillers: JSX.Element[] = [];
         for (let idx = day; idx < day + numFillers; idx++) {
             const currDay = idx + 1;
-            rowFillers.push(this.createDayCell(currDay, month, year, `EndFillerCell${currDay}`, undefined, {color: "#dddddd"}));
+            rowFillers.push(this.createDayCell(currDay, month, year, `EndFillerCell${currDay}`, undefined, { color: "#dddddd" }));
         }
         return rowFillers;
     }
@@ -241,11 +240,11 @@ export class DayTable extends React.Component<IDayTableProps, IDayTableState> {
             // if current day == ActiveCell
             if ((this.state.ActiveCell !== undefined) &&
                 (this.state.ActiveCell.Day === item.day && this.state.ActiveCell.Month === this.state.ActiveCell.Month && this.state.ActiveCell.Year === this.state.ActiveCell.Year)) {
-                    cell = this.createDayCell(item.day, this.state.ActiveCell.Month, this.state.ActiveCell.Year, `Cell${item.day}`, {background: "#1168b3"}, {color: "white"});
-            // if current day == today
+                cell = this.createDayCell(item.day, this.state.ActiveCell.Month, this.state.ActiveCell.Year, `Cell${item.day}`, { background: theme.colorPrimary }, { color: "white" });
+                // if current day == today
             } else if (Today.getDate() === item.day && Today.getMonth() === this.state.ActiveCell.Month && Today.getFullYear() === this.state.ActiveCell.Year) {
-                cell = this.createDayCell(item.day, this.state.ActiveCell.Month, this.state.ActiveCell.Year, `Cell${item.day}`, {background: "#eeeeee"}, undefined);
-            // if current day != ActiveCell && != today
+                cell = this.createDayCell(item.day, this.state.ActiveCell.Month, this.state.ActiveCell.Year, `Cell${item.day}`, { background: theme.colorSecondary, opacity: 0.6 }, undefined);
+                // if current day != ActiveCell && != today
             } else {
                 cell = this.createDayCell(item.day, this.state.ActiveCell.Month, this.state.ActiveCell.Year, `Cell${item.day}`, undefined, undefined);
             }

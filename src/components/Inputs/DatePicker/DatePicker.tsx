@@ -1,6 +1,6 @@
 import * as React from "react";
 import styled from "styled-components";
-import { DayTable, Dropdown, IDropdownOption } from "../../../components";
+import { DayTable, Dropdown, IDropdownOption, Button } from "../../../components";
 
 const ComponentWrapper = styled.div`
     display: flex;
@@ -70,7 +70,6 @@ const FloatingLabel = styled.label`
 
 const CalendarWrapper = styled.div`
     background: #fefefe;
-    height: 350px;
     width: 300px;
     box-sizing: border-box;
     border-radius: 7.5px;
@@ -78,6 +77,7 @@ const CalendarWrapper = styled.div`
     z-index: 1;
     outline: none;
     border: 1px solid black;
+    padding: 15px 0px;
 
 
     &::after {
@@ -144,10 +144,6 @@ const CalendarFooter = styled.footer`
     justify-content: center;
 `;
 
-const TodayButton = styled.button`
-
-`;
-
 const Month: { [decimal: string]: string } = {
     0: "Jan",
     1: "Feb",
@@ -178,7 +174,7 @@ export interface IDatePickerState {
     Value: string;
     HasValue: boolean;
     HasDate: boolean;
-    ActiveCell: { Day: number, Month: number, Year: number};
+    ActiveCell: { Day: number, Month: number, Year: number };
     DateFormat: string;
     IsCalendarOpen: boolean;
 }
@@ -200,7 +196,7 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
             Value: startValue ? `${("0" + (Number(this.props.StartDate.getMonth()) + 1).toString()).slice(-2)}/${("0" + this.props.StartDate.getDate().toString()).slice(-2)}/${this.props.StartDate.getFullYear().toString()}` : "",
             HasValue: startValue ? true : false,
             HasDate: startValue ? true : false,
-            ActiveCell: { Day: startDay, Month: startMonth, Year: startYear},
+            ActiveCell: { Day: startDay, Month: startMonth, Year: startYear },
             DateFormat: this.props.DateFormat !== undefined ? this.props.DateFormat : this.DefaultDateFormat,
             IsCalendarOpen: false,
         };
@@ -225,27 +221,27 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
                             :
                             this.state.Value}
                     />
-                        {this.state.IsCalendarOpen || this.state.HasValue ?
-                            <FloatingLabel><span>Pick a Date</span></FloatingLabel>
+                    {this.state.IsCalendarOpen || this.state.HasValue ?
+                        <FloatingLabel><span>Pick a Date</span></FloatingLabel>
                         :
-                            <InputLabel><span>Pick a Date</span></InputLabel>
-                        }
+                        <InputLabel><span>Pick a Date</span></InputLabel>
+                    }
                 </InputWrapper>
-                { this.state.IsCalendarOpen ?
+                {this.state.IsCalendarOpen ?
                     <CalendarWrapper id={this.props.ID + "_CalendarWrapper"} data-transformx="right" data-transformy="bottom">
                         <CalendarHeader>
-                            <button onClick={() => this.changeMonth(-1)} onBlur={this.handleChildBlur}>prev</button>
-                            <Dropdown Value={this.state.HasDate ? this.state.ActiveCell.Month.toString() : today.getMonth().toString()} Options={this.getMonthDropdownOptions()} OnChange={this.setMonth} OnBlur={this.handleChildBlur}/>
-                            <Dropdown Value={this.state.HasDate ? this.state.ActiveCell.Year.toString() : today.getFullYear().toString()} Options={this.getYearDropdownOptions()} OnChange={this.setYear} OnBlur={this.handleChildBlur}/>
-                            <button onClick={() => this.changeMonth(1)} onBlur={this.handleChildBlur}>next</button>
+                            <Button Size="small" OrdinalType="secondary" OnClick={() => this.changeMonth(-1)} OnBlur={this.handleChildBlur} Caption="Prev" />
+                            <Dropdown Value={this.state.HasDate ? this.state.ActiveCell.Month.toString() : today.getMonth().toString()} Options={this.getMonthDropdownOptions()} OnChange={this.setMonth} OnBlur={this.handleChildBlur} />
+                            <Dropdown Value={this.state.HasDate ? this.state.ActiveCell.Year.toString() : today.getFullYear().toString()} Options={this.getYearDropdownOptions()} OnChange={this.setYear} OnBlur={this.handleChildBlur} />
+                            <Button Size="small" OrdinalType="secondary" OnClick={() => this.changeMonth(1)} OnBlur={this.handleChildBlur} Caption="Next" />
                         </CalendarHeader>
                         <DayTable
-                            ActiveCell={this.state.HasDate ? this.state.ActiveCell : {Day: today.getDate(), Month: today.getMonth(), Year: today.getFullYear()}}
+                            ActiveCell={this.state.HasDate ? this.state.ActiveCell : { Day: today.getDate(), Month: today.getMonth(), Year: today.getFullYear() }}
                             OnClick={this.setDay}
                             OnBlur={this.handleChildBlur}
                         />
                         <CalendarFooter>
-                            <TodayButton onClick={this.setDateToToday} onBlur={this.handleChildBlur}>Today</TodayButton>
+                            <Button Size="small" OrdinalType="primary" OnClick={this.setDateToToday} OnBlur={this.handleChildBlur} Caption="Today" />
                         </CalendarFooter>
                     </CalendarWrapper>
                     :
@@ -263,9 +259,9 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
             element.parentElement.style.position = "relative";
             // detect if calendar has bottom overflow
             const bottomOverflow: boolean = 0 > (window.innerHeight -
-                                                (element.offsetHeight +
-                                                element.parentElement.offsetTop +
-                                                element.parentElement.offsetHeight));
+                (element.offsetHeight +
+                    element.parentElement.offsetTop +
+                    element.parentElement.offsetHeight));
             if (bottomOverflow) {
                 element.dataset.transformy = "top";
             }
@@ -273,8 +269,8 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
             // detect if calendar has right overflow
             const rightOverflow: boolean = 0 > (window.innerWidth -
                 (element.parentElement.offsetLeft +
-                element.offsetLeft +
-                element.offsetWidth));
+                    element.offsetLeft +
+                    element.offsetWidth));
             if (rightOverflow) {
                 element.dataset.transformx = "left";
             }
@@ -323,7 +319,7 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
     private getMonthDropdownOptions = (): IDropdownOption[] => {
         const options: IDropdownOption[] = [];
         for (let month = 0; month < 12; month++) {
-            options.push({Caption: Month[month], Value: month.toString()});
+            options.push({ Caption: Month[month], Value: month.toString() });
         }
         return options;
     }
@@ -333,7 +329,7 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
         const minYear: number = this.props.MinYear ? this.props.MinYear : 1800;
         const maxYear: number = this.props.MaxYear ? this.props.MaxYear : 2200;
         for (let year = minYear; year <= maxYear; year++) {
-            options.push({Caption: year.toString(), Value: year.toString()});
+            options.push({ Caption: year.toString(), Value: year.toString() });
         }
         return options;
     }
@@ -358,44 +354,50 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
     }
 
     private setDay = (year: number, month: number, day: number) => {
-        this.setState({ActiveCell: { Day: day, Month: month, Year: year },
-                       IsCalendarOpen: false,
-                       Value: this.formatValue(day, month, year),
-                       HasValue: true, HasDate: true}, () => {
-                           this.props.OnChange(this.state.Value);
-                       });
+        this.setState({
+            ActiveCell: { Day: day, Month: month, Year: year },
+            IsCalendarOpen: false,
+            Value: this.formatValue(day, month, year),
+            HasValue: true, HasDate: true
+        }, () => {
+            this.props.OnChange(this.state.Value);
+        });
     }
 
     private setMonth = (value: string) => {
         const day = this.state.ActiveCell.Day;
         const month: number = Number(value);
         const year = this.state.ActiveCell.Year;
-        this.setState({HasValue: true, HasDate: true, IsCalendarOpen: true,
-                       Value: this.formatValue(day, month, year),
-                       ActiveCell: {Day: day, Month: month, Year: year}}, () => {
-                        this.props.OnChange(this.state.Value);
-                       });
+        this.setState({
+            HasValue: true, HasDate: true, IsCalendarOpen: true,
+            Value: this.formatValue(day, month, year),
+            ActiveCell: { Day: day, Month: month, Year: year }
+        }, () => {
+            this.props.OnChange(this.state.Value);
+        });
     }
 
     private setYear = (value: string) => {
         const day = this.state.ActiveCell.Day;
         const month = this.state.ActiveCell.Month;
         const year: number = Number(value);
-        this.setState({HasValue: true, HasDate: true, IsCalendarOpen: true,
-                       Value: this.formatValue(day, month, year),
-                       ActiveCell: {Day: day, Month: month, Year: year}}, () => {
-                        this.props.OnChange(this.state.Value);
-                       });
+        this.setState({
+            HasValue: true, HasDate: true, IsCalendarOpen: true,
+            Value: this.formatValue(day, month, year),
+            ActiveCell: { Day: day, Month: month, Year: year }
+        }, () => {
+            this.props.OnChange(this.state.Value);
+        });
     }
 
     private handleInputFocus = () => {
-        this.setState({IsCalendarOpen: true});
+        this.setState({ IsCalendarOpen: true });
     }
 
     private handleChildBlur = (event: React.FocusEvent<HTMLElement>) => {
         if (event.relatedTarget === null ||
             !document.getElementById(this.props.ID).contains(event.relatedTarget as Node)) {
-            this.setState({IsCalendarOpen: false});
+            this.setState({ IsCalendarOpen: false });
         }
     }
 
@@ -404,16 +406,16 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
         if (event.relatedTarget === null ||
             !document.getElementById(this.props.ID).contains(event.relatedTarget as Node)) {
             if (currValLength > 0) {
-                this.setState({HasValue: true});
+                this.setState({ HasValue: true });
             } else {
-                this.setState({HasValue: false});
+                this.setState({ HasValue: false });
             }
             if (currValLength === this.state.DateFormat.length) {
-                this.setState({HasDate: true});
+                this.setState({ HasDate: true });
             } else {
-                this.setState({HasDate: false});
+                this.setState({ HasDate: false });
             }
-            this.setState({IsCalendarOpen: false});
+            this.setState({ IsCalendarOpen: false });
         }
     }
 
@@ -423,12 +425,12 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
         const reDelimiter = new RegExp("\/");
         if ((reNumber.test(currVal.substring(currVal.length - 1, currVal.length)) && currVal.length < 11) || currVal.length === 0) {
             if ((currVal.length === 2 || currVal.length === 5) && currVal > this.state.Value) {
-                this.setState({Value: currVal + "/", HasDate: false});
+                this.setState({ Value: currVal + "/", HasDate: false });
             } else {
-                this.setState({Value: currVal, HasDate: false});
+                this.setState({ Value: currVal, HasDate: false });
             }
         } else if (reDelimiter.test(currVal.substring(currVal.length - 1, currVal.length)) && currVal.length < 11) {
-            this.setState({Value: currVal});
+            this.setState({ Value: currVal });
         }
 
         // update ActiveCell if new value's length matches DateFormat's length
@@ -436,11 +438,11 @@ export class DatePicker extends React.Component<IDatePickerProps, IDatePickerSta
             const month = Number(currVal.substring(0, 2));
             const day = Number(currVal.substring(3, 5));
             const year = Number(currVal.substring(6, 10));
-            this.setState({ActiveCell: {Day: day, Month: month - 1, Year: year}, HasDate: true}, () => {
+            this.setState({ ActiveCell: { Day: day, Month: month - 1, Year: year }, HasDate: true }, () => {
                 this.props.OnChange(this.state.Value);
             });
         } else if (currVal.length === 9) {
-            this.setState({HasDate: false});
+            this.setState({ HasDate: false });
         }
     }
 }
