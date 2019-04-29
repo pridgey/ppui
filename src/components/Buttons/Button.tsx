@@ -10,6 +10,7 @@ export interface IButtonProps {
     ButtonColor?: string;
     Disabled?: boolean;
     Size?: "small" | "medium" | "large";
+    Label?: string;
     OnClick: () => void;
     OnBlur?: (event: React.FocusEvent<HTMLElement>) => void;
 }
@@ -50,6 +51,7 @@ export class Button extends React.PureComponent<IButtonProps> {
     public render() {
         return (
             <StyledButton
+                aria-label={this.props.Label}
                 type={this.props.ButtonType || "button"}
                 onClick={this.handleClick}
                 TextColor={this.props.TextColor || "#000"}
