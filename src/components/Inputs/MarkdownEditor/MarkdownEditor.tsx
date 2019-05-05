@@ -1,7 +1,7 @@
 import * as React from "react";
 import styled from "styled-components";
-import { Button } from "../../";
-//import { theme } from "../../../theming/theme";
+import { Button, MarkdownPreview } from "../../";
+// import { theme } from "../../../theming/theme";
 
 const MDEWrapper = styled.div`
     border: 1px solid pink;
@@ -44,6 +44,11 @@ const TextArea = styled.textarea`
     font: inherit;
 `;
 
+enum MarkdownMode {
+    Write,
+    Preview,
+}
+
 interface ISelectionIndices {
     Start: number;
     End: number;
@@ -57,6 +62,7 @@ interface IMarkdownEditorProps {
 interface IMarkdownEditorState {
     Value: string;
     Selected: ISelectionIndices;
+    Mode: MarkdownMode;
 }
 
 export class MarkdownEditor extends React.Component<IMarkdownEditorProps, IMarkdownEditorState> {
@@ -65,6 +71,7 @@ export class MarkdownEditor extends React.Component<IMarkdownEditorProps, IMarkd
         this.state = {
             Value: this.props.Value || "",
             Selected: {Start: 0, End: 0},
+            Mode: MarkdownMode.Write,
         };
     }
 
@@ -76,14 +83,14 @@ export class MarkdownEditor extends React.Component<IMarkdownEditorProps, IMarkd
                         <MarkdownItem>
                             <Button
                                 Caption="Write"
-                                OnClick={() => console.log("You clicked the write button")}
+                                OnClick={() => this.setState({ Mode: MarkdownMode.Write })}
                                 Size="small"
                                 TextColor="Black" // use theme?
                                 ButtonColor="#6DD6FF" // use theme?
                             />
                             <Button
                                 Caption="Preview"
-                                OnClick={() => console.log("You clicked the preview button")}
+                                OnClick={() => this.setState({ Mode: MarkdownMode.Preview })}
                                 Size="small"
                                 TextColor="Black" // use theme?
                                 ButtonColor="#6DD6FF" // use theme?
@@ -112,12 +119,16 @@ export class MarkdownEditor extends React.Component<IMarkdownEditorProps, IMarkd
                         </MarkdownItem>
                     </MarkdownBar>
                 </MarkdownBarWrapper>
-                <TextArea
-                    value={this.state.Value}
-                    placeholder={this.props.Placeholder}
-                    onChange={this.handleChange}
-                    onSelect={this.handleSelect}
-                />
+                { this.state.Mode === MarkdownMode.Write ?
+                    <TextArea
+                        value={this.state.Value}
+                        placeholder={this.props.Placeholder}
+                        onChange={this.handleChange}
+                        onSelect={this.handleSelect}
+                    />
+                :
+                    <MarkdownPreview Value={this.state.Value}/>
+                }
             </MDEWrapper>
         );
     }
