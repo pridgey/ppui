@@ -1,7 +1,7 @@
 // react
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { Button, DatePicker, TextInput } from "./components";
+import { Button, DatePicker, MarkdownEditor, TextInput } from "./components";
 
 const root = document.getElementById("app") as HTMLElement;
 
@@ -93,6 +93,11 @@ ReactDOM.render(
         />
         <div style={{ padding: "20px", display: "flex", justifyContent: "space-between" }}>
             <DatePicker ID="DatePicker1" OnChange={(value) => console.log("The date you have selected: " + value)} />
+        </div>
+        <div style={{width: "600px"}}>
+            <MarkdownEditor
+                Placeholder="Go crazy..."
+            />
         </div>
     </div>
     , root);
