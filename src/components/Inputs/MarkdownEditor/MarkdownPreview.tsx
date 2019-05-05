@@ -15,9 +15,26 @@ const H2 = styled.h2`
 
 `;
 
+const UnstyledText = styled.span``;
+
+const Italic = styled.span`
+    font-style: italic;
+`;
+
+const Bold = styled.span`
+    font-weight: bold;
+`;
+
+const BoldItalic = styled.span`
+    font-style: italic;
+    font-weight: bold;
+`;
+
 interface IMarkdownElement {
     Element: StyledComponentClass<React.DetailedHTMLProps<React.HTMLAttributes<any>, any>, any, React.DetailedHTMLProps<React.HTMLAttributes<any>, any>>;
+    Children?: IMarkdownElement[];
     Text: string;
+    TextAfter?: string;
 }
 
 interface IMarkdownPreviewProps {
@@ -44,13 +61,27 @@ export class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps> 
     }
 
     private buildLine = (line: string): JSX.Element => {
-        const mdElements: IMarkdownElement[] = [];
-        mdElements.push(this.findAndApplyHeader(line));
-        line = mdElements[0].Text;
-        let element = <span>{mdElements[0].Text}</span>;
-        if (mdElements[0].Element !== undefined)
+        const mdElement: IMarkdownElement = this.findAndApplyHeader(line);
+        line = mdElement.Text;
+        if (mdElement.Element) {
+            mdElement.Children = [{Element: UnstyledText, Text: line.substring(0, line.indexOf("*") === -1 ? line.length : line.indexOf("*"))}];
+        } else {
+            mdElement.Element = UnstyledText;
+            mdElement.Children = [];
+            mdElement.Text = line.substring(0, line.indexOf("*") === -1 ? line.length : line.indexOf("*"));
+        }
+        const boldItalics: IMarkdownElement = this.findAndApplyBoldItalic(line.substring(line.indexOf("*"), line.length), []);
+        if (boldItalics) {
+            mdElement.Children = mdElement.Children.concat([boldItalics]).concat(boldItalics.Children);
+        }
+        let element = <span>{mdElement.Text}</span>;
+        if (mdElement.Element !== undefined)
         {
-            element = React.createElement(mdElements[0].Element, undefined, [<span>{mdElements[0].Text}</span>]);
+            const children: any[] = [];
+            if (mdElement.Children) {
+                mdElement.Children.filter((val) => val.Element !== undefined).map((child) => { children.push(<span><child.Element>{child.Text}</child.Element>{child.TextAfter}</span>); });
+            }
+            element = React.createElement(mdElement.Element, undefined, children);
         }
         return element;
     }
@@ -78,7 +109,7 @@ export class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps> 
     }
 
     // DUPLICATE FUNCTIOn -- is also in MarkdownEditor.tsx
-    /*private repeatString = (value: string, times: number): string => {
+    private repeatString = (value: string, times: number): string => {
         let repeatedValue: string = "";
         while (times > 0) {
             repeatedValue += value;
@@ -98,25 +129,45 @@ export class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps> 
         return count;
     }
 
-    private findAndApplyBoldItalic = (line: string): IMarkdownElement => {
-        const markdownElement: IMarkdownElement = { Element: <></>, Text: line };
+    private findAndApplyBoldItalic = (line: string, children: IMarkdownElement[]): IMarkdownElement => {
+        const markdownElement: IMarkdownElement = { Element: undefined, Children: children, Text: line };
         const first: number = line.indexOf("*");
         const last: number = line.lastIndexOf("*");
         if (first !== -1 && first !== last) {
             let repeatCount: number = this.getFirstCharRepeatCount(line.substring(first, line.length));
-            let next: number = line.indexOf("*", first + 1);
-            while (next !== last) {
-                console.log(next);
-                console.log(repeatCount);
-
-                next = last;// line.indexOf("*", next + 1);
-                repeatCount = 1;
+            let next: number = line.indexOf(this.repeatString("*", repeatCount), first + repeatCount);
+            if (next === -1) {
+                while (next === -1 && repeatCount > 1) {
+                    repeatCount--;
+                    next = line.indexOf(this.repeatString("*", repeatCount), first + repeatCount);
+                }
             }
-        } else {
-            // take out this else statement when everything is working
-            console.log(first);
-            console.log(first === last);
+            while (next !== -1) {
+                console.log(repeatCount);
+                switch (repeatCount) {
+                    case 0:
+                        return undefined;
+                    case 1:
+                        markdownElement.Element = Italic;
+                        break;
+                    case 2:
+                        markdownElement.Element = Bold;
+                        break;
+                    default:
+                        markdownElement.Element = BoldItalic;
+                        break;
+
+                }
+                markdownElement.Text = `${line.substring(first + repeatCount, next)}`;
+                markdownElement.TextAfter = `${line.substring(next + repeatCount, line.indexOf("*", next + repeatCount) === -1 ? next + repeatCount : line.indexOf("*", next + repeatCount))}`;
+                line = line.substring(next + repeatCount, line.length);
+                children.unshift(this.findAndApplyBoldItalic(line, children));
+                next = -1;
+                repeatCount = this.getFirstCharRepeatCount(line.substring(first, line.length));
+            }
         }
+        markdownElement.Children = children;
+        markdownElement.TextAfter = line;
         return markdownElement;
-    }*/
+    }
 }
