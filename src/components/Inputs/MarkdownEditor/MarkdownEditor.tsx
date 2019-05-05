@@ -149,7 +149,6 @@ export class MarkdownEditor extends React.Component<IMarkdownEditorProps, IMarkd
             times--;
         }
         return repeatedValue;
-
     }
 
     private applyHeader = (rank: number) => {
