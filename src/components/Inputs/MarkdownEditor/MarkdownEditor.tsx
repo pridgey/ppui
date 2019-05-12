@@ -1,4 +1,9 @@
+// tslint:disable-next-line: no-submodule-imports
+import "codemirror/lib/codemirror.css";
+// tslint:disable-next-line: no-submodule-imports
+import "codemirror/mode/markdown/markdown";
 import * as React from "react";
+import CodeMirror from "react-codemirror";
 import styled from "styled-components";
 import { Button, MarkdownPreview } from "../../";
 // import { theme } from "../../../theming/theme";
@@ -121,6 +126,8 @@ export class MarkdownEditor extends React.Component<IMarkdownEditorProps, IMarkd
                 </MarkdownBarWrapper>
                 { this.state.Mode === MarkdownMode.Write ?
                     <TextArea
+                        name="test"
+                        className="codemirror-textarea"
                         value={this.state.Value}
                         placeholder={this.props.Placeholder}
                         onChange={this.handleChange}
@@ -129,8 +136,18 @@ export class MarkdownEditor extends React.Component<IMarkdownEditorProps, IMarkd
                 :
                     <MarkdownPreview Value={this.state.Value}/>
                 }
+                <CodeMirror
+                    name="react-codemirror"
+                    value={this.state.Value}
+                    onChange={this.handleMirrorChange}
+                    options={{lineNumbers: true, mode: "markdown"}}
+                />
             </MDEWrapper>
         );
+    }
+
+    private handleMirrorChange = (newCode: string) => {
+        this.setState({Value: newCode});
     }
 
     private handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
