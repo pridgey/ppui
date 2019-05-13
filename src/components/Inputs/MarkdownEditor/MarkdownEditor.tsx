@@ -4,6 +4,7 @@ import "codemirror/lib/codemirror.css";
 import "codemirror/mode/markdown/markdown";
 import * as React from "react";
 import CodeMirror from "react-codemirror";
+import { Converter } from "showdown";
 import styled from "styled-components";
 import { Button, MarkdownPreview } from "../../";
 // import { theme } from "../../../theming/theme";
@@ -66,6 +67,7 @@ interface IMarkdownEditorProps {
 
 interface IMarkdownEditorState {
     Value: string;
+    Html: string;
     Selected: ISelectionIndices;
     Mode: MarkdownMode;
 }
@@ -75,6 +77,7 @@ export class MarkdownEditor extends React.Component<IMarkdownEditorProps, IMarkd
         super(props);
         this.state = {
             Value: this.props.Value || "",
+            Html: this.buildMarkdown(this.props.Value),
             Selected: {Start: 0, End: 0},
             Mode: MarkdownMode.Write,
         };
@@ -142,12 +145,61 @@ export class MarkdownEditor extends React.Component<IMarkdownEditorProps, IMarkd
                     onChange={this.handleMirrorChange}
                     options={{lineNumbers: true, mode: "markdown"}}
                 />
+                <section style={{width: "100%", height: "50px"}} contentEditable={true} onInput={this.handleChangeDiv}></section>
             </MDEWrapper>
         );
     }
 
+    private buildMarkdown = (value: string): string => {
+        const converter = new Converter({
+            omitExtraWLInCodeBlocks: false, /* default = false */
+            noHeaderId: true, /* default = false */
+            customizedHeaderId: false, /* default = false */
+            ghCompatibleHeaderId: false, /* default = false */
+            prefixHeaderId: false, /* default = false, can be string to set ID */
+            parseImgDimensions: false, /* default = false */
+            headerLevelStart: 1, /* default = 1 */
+            simplifiedAutoLink: false, /* default = false */
+            excludeTrailingPunctuationFromURLs: false, /* default = false */
+            literalMidWordUnderscores: false, /* default = false */
+            strikethrough: true, /* default = false */
+            tables: true, /* default = false */
+            tablesHeaderId: false, /* default = false */
+            ghCodeBlocks: true, /* default = true */
+            tasklists: false, /* default = false */
+            smoothLivePreview: false, /* default = false */
+            smartIndentationFix: false, /* default = false */
+            disableForced4SpacesIndentedSublists: false, /* default = false */
+            simpleLineBreaks: false, /* default = false */
+            requireSpaceBeforeHeadingText: false, /* default = false */
+            openLinksInNewWindow: true, /* default = false */
+            backslashEscapesHTMLTags: false, /* default = false */
+            emoji: true, /* default = false */
+            underline: true, /* default = false */
+            completeHTMLDocument: false, /* default = false */
+            metadata: false, /* default = false */
+            splitAdjacentBlockquotes: false, /* default = false */
+        });
+        const html = converter.makeHtml(value);
+        return html;
+    }
+
     private handleMirrorChange = (newCode: string) => {
         this.setState({Value: newCode});
+    }
+
+    private handleChangeDiv = (event: React.FormEvent<HTMLDivElement>) => {
+        const target = event.target as HTMLDivElement;
+        const currVal = this.state.Value;
+        const newVal = currVal + (target).innerText[target.innerText.length - 1];
+        this.setState(
+            {
+                Value: newVal,
+                Html: this.buildMarkdown(newVal)},
+                () => {
+                    target.innerHTML = this.state.Html;
+                    window.getSelection().setPosition(target, 1);
+                });
     }
 
     private handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
