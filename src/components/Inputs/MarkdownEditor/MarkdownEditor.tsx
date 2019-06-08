@@ -145,7 +145,7 @@ export class MarkdownEditor extends React.Component<IMarkdownEditorProps, IMarkd
                     onChange={this.handleMirrorChange}
                     options={{lineNumbers: true, mode: "markdown"}}
                 />
-                <section style={{width: "100%", height: "50px"}} contentEditable={true} onInput={this.handleChangeDiv}></section>
+                <section style={{width: "100%", height: "50px"}} contentEditable={true} onInput={this.handleChangeDiv} onMouseUp={this.handleSelectDiv}></section>
             </MDEWrapper>
         );
     }
@@ -200,6 +200,14 @@ export class MarkdownEditor extends React.Component<IMarkdownEditorProps, IMarkd
                     target.innerHTML = this.state.Html;
                     window.getSelection().setPosition(target, 1);
                 });
+    }
+
+    private handleSelectDiv = (event: React.MouseEvent<HTMLDivElement>) => {
+        //const textArea: HTMLDivElement = event.target;
+        console.log(event);
+        console.log(document.createRange());
+        console.log(window.getSelection());
+        //this.setState({ Selected: { Start: textArea.selectionStart, End: textArea.selectionEnd }});
     }
 
     private handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
