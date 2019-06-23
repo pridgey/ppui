@@ -31,7 +31,6 @@ const translateY = keyframes`
 const ToastContainer = styled.div`
     min-height: 60px;
     width: 350px;
-    display: flex;
     border-radius: 5px;
     align-items: center;
     position: relative;
@@ -42,6 +41,7 @@ const ToastContainer = styled.div`
     margin: 10px 0;
     box-shadow: #e3e3e3 1px 3px 8px 1px;
     cursor: pointer;
+    transition: all 1s ease-in-out;
 `;
 
 interface ITimeoutHolder {
@@ -156,26 +156,31 @@ const TypeMap: { [key: string]: IColors } = {
 };
 
 export class Toast extends React.Component<IToastProps> {
+    private countdown: HTMLElement;
+    private toastContainer: HTMLElement;
+
     public static getDerivedStateFromProps(nextProps: IToastProps) {
         return nextProps;
     }
 
     constructor(props: any) {
         super(props);
-        console.log(this.props.Type);
         this.state = {
             Countdown: undefined,
         };
     }
 
     public componentDidMount() {
-        const countdown: HTMLElement = document.getElementById(`ToastTimeout_${this.props.ID}`);
-        countdown.addEventListener("animationend", this.timeout);
+        this.countdown = document.getElementById(`ToastTimeout_${this.props.ID}`);
+        this.toastContainer = this.countdown.parentElement.parentElement;
+        this.countdown.addEventListener("animationend", this.hide);
+        this.toastContainer.addEventListener("transitionend", this.timeout);
+        this.toastContainer.setAttribute("animation-complete", "false")
     }
 
     public render() {
         return (
-            <ToastContainer onClick={this.timeout} onKeyUp={this.onKeyUp} onMouseOver={this.pause} onMouseOut={this.run}>
+            <ToastContainer data-animation-complete="false" onClick={() => this.props.OnTimeout(this.props.ID)} onMouseOver={this.pause} onMouseOut={this.run}>
                 <TimeoutHolder BackgroundColor={TypeMap[this.props.Type].Primary}>
                     <Timeout BackgroundColor={TypeMap[this.props.Type].Secondary} className="ToastTimeout" id={`ToastTimeout_${this.props.ID}`} Timeout={this.props.Timeout} onMouseOver={this.pause} onMouseOut={this.run} />
                     <IconWrapper Color={TypeMap[this.props.Type].Background}>
@@ -193,24 +198,38 @@ export class Toast extends React.Component<IToastProps> {
         const toasts = document.getElementsByClassName("ToastTimeout");
         for (let i = 0; i < toasts.length; i++) {
             (toasts[i] as HTMLElement).style.animationPlayState = "paused";
+            const toastContainer = (toasts[i] as HTMLElement).parentElement.parentElement;
+            toastContainer.style.opacity = "1";
         }
     }
 
     private run = () => {
         const toasts = document.getElementsByClassName("ToastTimeout");
         for (let i = 0; i < toasts.length; i++) {
-            (toasts[i] as HTMLElement).style.animationPlayState = "";
+            const toast: HTMLElement = toasts[i] as HTMLElement;
+            const toastContainer: HTMLElement = toast.parentElement.parentElement;
+            toast.style.animationPlayState = "";
+            if (toastContainer.style.opacity !== "0" && toastContainer.getAttribute("animation-complete") === "true") {
+                toastContainer.style.opacity = "0";
+            }
         }
     }
 
-    private onKeyUp = (event: React.KeyboardEvent) => {
-        if (event.keyCode === 13 /* enter */ || event.keyCode === 32 /* space */) {
-            this.timeout();
-        }
+    // private onKeyUp = (event: React.KeyboardEvent) => {
+    //     if (event.keyCode === 13 /* enter */ || event.keyCode === 32 /* space */) {
+    //         this.timeout();
+    //     }
+    // }
+
+    private hide = () => {
+        this.toastContainer.setAttribute("animation-complete", "true");
+        this.toastContainer.style.opacity = "0";
     }
 
     private timeout = () => {
-        this.run();
-        this.props.OnTimeout(this.props.ID);
+        if (this.toastContainer.style.opacity === "0") {
+            this.run();
+            this.props.OnTimeout(this.props.ID);
+        }
     }
 }
