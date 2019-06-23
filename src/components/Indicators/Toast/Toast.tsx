@@ -197,20 +197,27 @@ export class Toast extends React.Component<IToastProps> {
     private pause = () => {
         const toasts = document.getElementsByClassName("ToastTimeout");
         for (let i = 0; i < toasts.length; i++) {
-            (toasts[i] as HTMLElement).style.animationPlayState = "paused";
-            const toastContainer = (toasts[i] as HTMLElement).parentElement.parentElement;
-            toastContainer.style.opacity = "1";
+            // toggle animation off
+            const currentToast: HTMLElement = toasts[i] as HTMLElement;
+            currentToast.style.animationPlayState = "paused";
+
+            // toggle transition on (show)
+            const currentToastContainer = currentToast.parentElement.parentElement;
+            currentToastContainer.style.opacity = "1";
         }
     }
 
     private run = () => {
         const toasts = document.getElementsByClassName("ToastTimeout");
         for (let i = 0; i < toasts.length; i++) {
-            const toast: HTMLElement = toasts[i] as HTMLElement;
-            const toastContainer: HTMLElement = toast.parentElement.parentElement;
-            toast.style.animationPlayState = "";
-            if (toastContainer.style.opacity !== "0" && toastContainer.getAttribute("animation-complete") === "true") {
-                toastContainer.style.opacity = "0";
+            // toggle animation on
+            const currentToast: HTMLElement = toasts[i] as HTMLElement;
+            currentToast.style.animationPlayState = "running";
+            
+            // toggle transition on (hide) - if it isn't already hiding
+            const currentToastContainer: HTMLElement = currentToast.parentElement.parentElement;
+            if (currentToastContainer.style.opacity !== "0" && currentToastContainer.getAttribute("animation-complete") === "true") {
+                currentToastContainer.style.opacity = "0";
             }
         }
     }
