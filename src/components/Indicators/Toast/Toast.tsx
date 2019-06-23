@@ -213,7 +213,7 @@ export class Toast extends React.Component<IToastProps> {
             // toggle animation on
             const currentToast: HTMLElement = toasts[i] as HTMLElement;
             currentToast.style.animationPlayState = "running";
-            
+
             // toggle transition on (hide) - if it isn't already hiding
             const currentToastContainer: HTMLElement = currentToast.parentElement.parentElement;
             if (currentToastContainer.style.opacity !== "0" && currentToastContainer.getAttribute("animation-complete") === "true") {
@@ -229,6 +229,7 @@ export class Toast extends React.Component<IToastProps> {
     // }
 
     private hide = () => {
+        this.countdown.style.visibility = "hidden";
         this.toastContainer.setAttribute("animation-complete", "true");
         this.toastContainer.style.opacity = "0";
     }
