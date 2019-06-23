@@ -32,7 +32,6 @@ const ToastContainer = styled.div`
     min-height: 60px;
     width: 350px;
     border-radius: 5px;
-    align-items: center;
     position: relative;
     font-family: Roboto;
     font-size: 15px;
