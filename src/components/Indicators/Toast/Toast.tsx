@@ -154,13 +154,9 @@ const TypeMap: { [key: string]: IColors } = {
     },
 };
 
-export class Toast extends React.Component<IToastProps> {
+export class Toast extends React.PureComponent<IToastProps> {
     private countdown: HTMLElement;
     private toastContainer: HTMLElement;
-
-    public static getDerivedStateFromProps(nextProps: IToastProps) {
-        return nextProps;
-    }
 
     constructor(props: any) {
         super(props);

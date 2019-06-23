@@ -1,17 +1,24 @@
 // react
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { Button, DatePicker, MarkdownEditor, TextInput, Toast } from "./components";
+import { Button, DatePicker, IToast, MarkdownEditor, TextInput, ToastContainer } from "./components";
 
 const root = document.getElementById("app") as HTMLElement;
 
+const toasts: IToast[] = [
+    { Message: "I am an information message.", Timeout: 4, ID: 1, Type: "Information"},
+    { Message: "This is what success looks like.", Timeout: 4, ID: 2, Type: "Success" },
+    { Message: "If you continue, don't say we didn't warn you. We clearly did.", Timeout: 4, ID: 3, Type: "Warning" },
+    { Message: "You broke something. Nice job chump!", Timeout: 4, ID: 4, Type: "Error" },
+    { Message: "When we display a lot of information we will need more butter because the size of our toast increases. This message needs to be larger so I am typing this right now.", Timeout: 4,  ID: 5, Type: "Information" },
+];
+
 ReactDOM.render(
     <div style={{ fontFamily: "sans-serif" }}>
-        <Toast Message="I am an information message." Timeout={4} ID={1} Type={"Information"} OnTimeout={undefined}/>
-        <Toast Message="This is what success looks like." Timeout={4} ID={2} Type={"Success"} OnTimeout={undefined}/>
-        <Toast Message="If you continue, don't say we didn't warn you. We clearly did." Timeout={4} ID={3} Type={"Warning"} OnTimeout={undefined}/>
-        <Toast Message="You broke something. Nice job chump!" Timeout={4} ID={4} Type={"Error"} OnTimeout={undefined}/>
-        <Toast Message="When we display a lot of information we will need more butter because the size of our toast increases. This message needs to be larger so I am typing this right now." Timeout={4} ID={5} Type={"Information"} OnTimeout={undefined}/>
+        <ToastContainer
+            Toasts={toasts}
+            HandleTimeout={(ID) => console.log(`Timeout on Toast with ID = ${ID}`)}
+        />
         <Button
             Caption="Small"
             OnClick={() => alert("You clicked the best button")}
